@@ -69,7 +69,7 @@ async def create_charger_async(charge_point_id: Index):
 
 
 @app_celery.task
-def create_charger(input: str):
-    charge_point_id = json.loads(input).get("charge_point_id")
+def create_charger(_input: str):
+    charge_point_id = json.loads(_input).get("charge_point_id")
     async_to_sync(create_charger_async)(charge_point_id)
     return "Charger done"

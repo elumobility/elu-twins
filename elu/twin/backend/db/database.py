@@ -10,7 +10,9 @@ from elu.twin.backend.env import (
 
 if POSTGRES_HOSTNAME:
     db_kwargs = {
-        "url": f"postgresql://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOSTNAME}:{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
+        "url": f"postgresql://{POSTGRES_USERNAME}:"
+        f"{POSTGRES_PASSWORD}@{POSTGRES_HOSTNAME}:"
+        f"{POSTGRES_PORT}/{POSTGRES_DB_NAME}"
     }
 else:
     sqlite_file_name = "database.db"

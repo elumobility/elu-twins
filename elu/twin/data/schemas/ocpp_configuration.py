@@ -127,7 +127,7 @@ def cast_from_key_value(
 
 
 class OcppConfigurationBase(SQLModel):
-    """Basic method useful for an charge_point configuration"""
+    """Basic method useful for a charge_point configuration"""
 
     def get_key_value(self, key: str) -> KeyValue | None:
         """Return the value of the corresponding with in KeyValue format

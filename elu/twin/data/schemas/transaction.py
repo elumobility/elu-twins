@@ -3,11 +3,12 @@ from datetime import datetime
 from sqlmodel import Field, SQLModel
 
 from elu.twin.data.enums import TransactionStatus, TransactionName
+from elu.twin.data.helpers import get_now
 from elu.twin.data.schemas.common import Index, TableBase, OwnedByUser, UpdateSchema
 
 
 class BaseTransaction(TableBase):
-    start_time: datetime = Field(default_factory=datetime.utcnow)
+    start_time: datetime = Field(default_factory=get_now)
     end_time: datetime | None = Field(default=None)
     energy: int = Field(default=0, ge=0, description="Energy in kWh")
     status: TransactionStatus = Field(default=TransactionStatus.pending)

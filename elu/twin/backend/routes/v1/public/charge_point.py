@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Annotated, List
 
 from elu.twin.data.schemas.charge_point import (
@@ -14,7 +13,7 @@ from ocpp.v201.enums import ConnectorType
 
 from elu.twin.backend.crud.user import get_current_active_user
 from elu.twin.backend.db.database import get_session
-from sqlmodel import select, Session, delete
+from sqlmodel import select, Session
 from elu.twin.backend.crud.steve_mysql import add_charge_points_to_steve
 
 from elu.twin.data.tables import (
@@ -27,7 +26,7 @@ from elu.twin.data.tables import (
     Vehicle,
 )
 
-from elu.twin.data.helpers import get_token_price
+from elu.twin.data.helpers import get_token_price, get_now
 
 router = APIRouter(
     prefix="/twin/charge-point",
@@ -240,7 +239,7 @@ def get_charge_points_from_str(
         number_of_chargers,
     ) = charge_point_string.charge_point_string.split(":")
 
-    now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    now = get_now(as_string=False).strftime("%Y%m%d%H%M%S")
 
     charge_points = [
         InputChargePoint(

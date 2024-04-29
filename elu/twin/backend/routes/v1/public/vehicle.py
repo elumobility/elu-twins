@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
+from elu.twin.data.helpers import get_now
 from elu.twin.data.schemas.common import Index
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -88,7 +89,7 @@ def get_vehicles_from_str(vehicle_str: str) -> list[InputVehicle]:
         num_vehicles,
     ) = vehicle_str.split(":")
 
-    now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    now = get_now(as_string=False).strftime("%Y%m%d%H%M%S")
 
     vehicles = [
         InputVehicle(

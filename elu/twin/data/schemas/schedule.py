@@ -5,6 +5,8 @@ from ocpp.v16.datatypes import ChargingProfile, ChargingSchedule, ChargingSchedu
 from ocpp.v16.enums import ChargingRateUnitType
 from sqlmodel import Field, SQLModel
 
+from elu.twin.data.helpers import get_now
+
 
 class Interval(SQLModel):
     start_time: datetime
@@ -134,7 +136,7 @@ class Schedule(SQLModel):
         duration: int,
         charging_rate_unit: ChargingRateUnitType,
     ) -> ChargingSchedule:
-        now = datetime.utcnow()
+        now = get_now(as_string=False)
         end_schedule = now + timedelta(seconds=duration)
         all_intervals = []
         min_charging_rate = 0

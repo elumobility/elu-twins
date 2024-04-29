@@ -14,7 +14,7 @@ class BaseUser(SQLModel):
     )
 
     @field_validator("username")
-    def check_email(cls, value):
+    def check_email(self, value):
         # use a regex to check that the email has a valid format
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         if not re.match(email_regex, value):
@@ -27,7 +27,7 @@ class InputUser(BaseUser):
     quota_id: Optional[int] = Field(None)
 
     @field_validator("password")
-    def check_password(cls, value):
+    def check_password(self, value):
         # convert the password to a string if it is not already
         value = str(value)
         # check that the password has at least 8 characters, one uppercase letter, one lowercase letter, and one digit
@@ -56,7 +56,7 @@ class UpdateUser(SQLModel):
     max_number_of_vehicles: int | None = None
 
     @field_validator("password")
-    def check_password(cls, value):
+    def check_password(self, value):
         # convert the password to a string if it is not already
         if value is None:
             return None

@@ -61,7 +61,6 @@ async def get_charge_point_configuration(
 ) -> OutputOcppConfigurationV16:
     """
 
-    :param cid:
     :return:
     """
     url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/charge-point/configuration/{configuration_id}"
@@ -102,7 +101,7 @@ async def stop_transaction(
 ) -> ActionMessageRequest | None:
     """
 
-    :param transaction_id:
+    :param transaction:
     :param user_id:
     """
     url = f"{BACKEND_PRIVATE_URL}/twin/charge-point/action/stop-transaction/{user_id}"
@@ -123,7 +122,7 @@ async def update_chager_point_configuration(
 ):
     """
 
-    :param cid:
+    :param configuration_id:
     :return:
     """
     url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/charge-point/configuration/{configuration_id}"
@@ -200,10 +199,8 @@ async def update_evse_status(
 async def update_connector_status(connector_id: Index, status: ConnectorStatus):
     """
 
-    :param cid:
-     :param evse_id:
-     :param connector_id:
-     :param status:
+    :param connector_id:
+    :param status:
     """
     url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/connector/status/{connector_id}/{status.value}"
     async with aiohttp.ClientSession() as session:
@@ -267,7 +264,6 @@ async def get_charging_rate(
 ):
     """
 
-    :param user_id:
     :param vid:
     :param soc:
     :param power_type:
