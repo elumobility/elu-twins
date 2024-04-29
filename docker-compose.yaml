@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis
+    networks:
+      - elu-dev
+    ports:
+      - 6379:6379
+  db:
+    image: postgres:15.3
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=eluadmin
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=elumobility
+    networks:
+      - elu-dev
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    ports:
+#      - 5050:80
+#    environment:
+#      - PGADMIN_DEFAULT_EMAIL=admin@emobility.com
+#      - PGADMIN_DEFAULT_PASSWORD=123456
+#    networks:
+#      - elu-dev
+#    depends_on:
+#      - db
+  backend-private:
+    build:
+        context: .
+    command: uvicorn elu.twin.backend.app_private:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    ports:
+      - 8800:8000
+    volumes:
+      - .:/usr/src/app
+    env_file: .docker.env
+    networks:
+      - elu-dev
+    depends_on:
+      - db
+      - redis
+  backend-public:
+    build:
+        context: .
+    command: uvicorn elu.twin.backend.app_public:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/usr/src/app
+    env_file: .docker.env
+    networks:
+      - elu-dev
+    depends_on:
+      - db
+      - redis
+      - backend-private
+  charge-point-celery:
+    build:
+        context: .
+    volumes:
+      - .:/usr/src/app
+    env_file: .docker.env
+    command: ["celery","-A","elu.twin.charge_point.celery_factory.app_celery","worker","--loglevel=INFO","--concurrency=24"]
+    networks:
+      - elu-dev
+    depends_on:
+      - redis
+  charge-point-flower:
+    build:
+        context: .
+    ports:
+      - 5555:5555
+    command: ["celery","--broker=redis://redis:6379/1","flower","--port=5555"]
+    networks:
+      - elu-dev
+    depends_on:
+      - charge-point-celery
+  csmsv16:
+    build:
+        context: .
+    volumes:
+      - .:/usr/src/app
+    command: ["python","elu/twin/csms/app.py"]
+    networks:
+      - elu-dev
+  csmsv2:
+    build:
+        context: .
+    volumes:
+      - .:/usr/src/app
+    command: ["python","elu/twin/csms/app_v2.py"]
+    networks:
+      - elu-dev
+
+
+networks:
+  elu-dev:

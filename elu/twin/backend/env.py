@@ -1,0 +1,16 @@
+import os
+
+
+SECRET_KEY = os.getenv("SECRET_KEY", "1qa2ws3ed4rf5tg6yh7uj8ik9ol0p")
+REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME", "localhost")
+REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+REDIS_DB_CELERY = os.getenv("REDIS_DB_CELERY", "0")
+REDIS_DB_ACTIONS = os.getenv("REDIS_DB_ACTIONS", "1")
+
+POSTGRES_USERNAME = os.getenv("POSTGRES_USER", "eluadmin")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "123456")
+POSTGRES_HOSTNAME = os.getenv("POSTGRES_HOSTNAME", "localhost")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
+POSTGRES_DB_NAME = os.getenv("POSTGRES_DB_NAME", "elumobility")
+
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60)
