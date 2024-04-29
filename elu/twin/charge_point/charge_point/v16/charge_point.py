@@ -913,7 +913,7 @@ class ChargePoint(ChargePointBase):
         )
 
     async def get_send_heartbeat(self, **kwargs):
-        _ = await requests.update_heartbeat(self.cpi.id, datetime.utcnow())
+        _ = await requests.update_heartbeat(self.cpi.id, get_now(as_string=False))
         return call.HeartbeatPayload()
 
     async def send_heartbeats_with_interval(self):

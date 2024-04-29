@@ -1,10 +1,7 @@
 import asyncio
 import logging
-import random
-from datetime import datetime
 
 from elu.twin.data.helpers import get_now
-from ocpp.v16.datatypes import IdTagInfo
 from ocpp.v201.enums import Action, RegistrationStatusType
 
 try:
@@ -19,13 +16,13 @@ except ModuleNotFoundError:
     sys.exit(1)
 
 from ocpp.routing import on
-from ocpp.v201 import ChargePoint as cp
+from ocpp.v201 import ChargePoint as Cp
 from ocpp.v201 import call_result
 
 logging.basicConfig(level=logging.INFO)
 
 
-class ChargePoint(cp):
+class ChargePoint(Cp):
     @on(Action.BootNotification)
     def on_boot_notification(self, charging_station, reason, **kwargs):
         return call_result.BootNotificationPayload(
@@ -36,7 +33,7 @@ class ChargePoint(cp):
 
     @on(Action.Heartbeat)
     def on_heartbeat(self):
-        return call_result.HeartbeatPayload(current_time=datetime.utcnow().isoformat())
+        return call_result.HeartbeatPayload(current_time=get_now())
 
 
 async def on_connect(websocket, path):

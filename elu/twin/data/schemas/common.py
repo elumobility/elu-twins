@@ -3,6 +3,8 @@ from datetime import datetime
 from sqlmodel import SQLModel, Field
 from uuid import UUID, uuid4
 
+from elu.twin.data.helpers import get_now
+
 Index = str
 
 
@@ -15,8 +17,8 @@ class IDBase(SQLModel):
 
 
 class TimestampBase(SQLModel):
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=get_now)
+    updated_at: datetime = Field(default_factory=get_now)
 
 
 class TableBase(IDBase, TimestampBase):
@@ -28,4 +30,4 @@ class OwnedByUser(TableBase):
 
 
 class UpdateSchema(SQLModel):
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=get_now)

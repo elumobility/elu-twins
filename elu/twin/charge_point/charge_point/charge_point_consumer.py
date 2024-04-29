@@ -1,29 +1,24 @@
 import asyncio
 import json
-
-from elu.twin.data.schemas.common import Index
-from elu.twin.data.schemas.transaction import (
-    RequestStartTransaction,
-    RequestStopTransaction,
-    RedisRequestStartTransaction,
-    RedisRequestStopTransaction,
-)
-from loguru import logger
 from asyncio import Queue, Task
 from typing import Coroutine
 
 import redis
-
-from ocpp.v16.enums import ChargePointStatus
+from loguru import logger
 from sqlmodel import SQLModel
 
 from elu.twin.charge_point import requests
-from elu.twin.charge_point.env import REDIS_HOSTNAME, REDIS_DB_ACTIONS, REDIS_PORT
-from elu.twin.data.schemas.charge_point import OutputChargePoint as Cpi
 from elu.twin.charge_point.charge_point.models.charge_point import (
     actions,
 )
+from elu.twin.charge_point.env import REDIS_HOSTNAME, REDIS_DB_ACTIONS, REDIS_PORT
 from elu.twin.data.enums import PowerType, is_dc, ConnectorStatus, EvseStatus
+from elu.twin.data.schemas.charge_point import OutputChargePoint as Cpi
+from elu.twin.data.schemas.common import Index
+from elu.twin.data.schemas.transaction import (
+    RedisRequestStartTransaction,
+    RedisRequestStopTransaction,
+)
 
 
 class ChargePointConsumer:
@@ -55,9 +50,9 @@ class ChargePointConsumer:
     ):
         """
 
-        :param evse_id:
+        :param evse:
         :param status:
-        :param active_charger:
+        :param active_connector:
         """
         self.cpi.evses[evse].status = status
         self.cpi.evses[evse].active_connector_id = active_connector

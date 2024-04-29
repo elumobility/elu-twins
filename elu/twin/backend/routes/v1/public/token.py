@@ -91,12 +91,12 @@ async def create_app_token(
 async def get_app_token(
     *,
     session: Session = Depends(get_session),
-    id: Index,
+    _id: Index,
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     token = session.exec(
         select(AppToken)
-        .where(AppToken.id == id)
+        .where(AppToken.id == _id)
         .where(AppToken.user_id == current_user.id)
     ).first()
     if not token:
@@ -122,12 +122,12 @@ async def get_app_tokens(
 async def delete_app_token(
     *,
     session: Session = Depends(get_session),
-    id: Index,
+    _id: Index,
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     token = session.exec(
         select(AppToken)
-        .where(AppToken.id == id)
+        .where(AppToken.id == _id)
         .where(AppToken.user_id == current_user.id)
     ).first()
     if not token:

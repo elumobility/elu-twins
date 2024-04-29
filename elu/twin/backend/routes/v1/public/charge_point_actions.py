@@ -1,15 +1,21 @@
 import json
-import logging
 from typing import Annotated
 
-import redis
+from fastapi import APIRouter, Depends, HTTPException
+from ocpp.v16.enums import ChargePointStatus
+from sqlmodel import Session, select
+
+from elu.twin.backend.crud.user import get_current_active_user
+from elu.twin.backend.db.database import get_session
+from elu.twin.backend.routes.v1.common.charge_point_actions import (
+    _post_request_start_charging,
+    _stop_charging,
+)
+from elu.twin.charge_point.celery_factory import create_charger, app_celery
 from elu.twin.data.enums import (
     ConnectorStatus,
-    VehicleStatus,
-    TransactionStatus,
     EvseStatus,
 )
-from ocpp.v16.enums import ChargePointStatus
 from elu.twin.data.schemas.actions import (
     ActionMessageRequest,
     RequestConnectChargePoint,
@@ -19,29 +25,10 @@ from elu.twin.data.schemas.transaction import (
     OutputTransaction,
     RequestStartTransaction,
     RequestStopTransaction,
-    RedisRequestStartTransaction,
-    RedisRequestStopTransaction,
 )
-
 from elu.twin.data.tables import (
     User,
-    Connector,
-    Transaction,
-    Vehicle,
     ChargePoint,
-)
-from elu.twin.charge_point.celery_factory import create_charger, app_celery
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
-
-from elu.twin.backend.crud.user import get_current_active_user
-from elu.twin.backend.db.database import get_session
-from elu.twin.backend.env import REDIS_HOSTNAME, REDIS_PORT, REDIS_DB_ACTIONS
-from fastapi import status
-
-from elu.twin.backend.routes.v1.common.charge_point_actions import (
-    _post_request_start_charging,
-    _stop_charging,
 )
 
 router = APIRouter(
