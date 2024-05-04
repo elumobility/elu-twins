@@ -6,10 +6,10 @@
 
 # ELU Twins 
 This is the open-source version of our product: ELU Twins. The goal is to allow users to simulate charging sessions and driving behavior enabling
-easier testing and demoing for e-mobility software including a charge management system. 
+easier testing and demoing for e-mobility software such as a charge management system. 
 
 # Description
-ELU Twins emulate devices related with electro mobility. At the moment, we support create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
+ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
 
 ### OCPP 1.6
 
@@ -32,6 +32,7 @@ docker-compose up --build
 ```
 ### Get started guides
 - To dos
+- Fo
 
 ### Known issues
 - Need to add tests
