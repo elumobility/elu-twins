@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/icons/elu_charger.png" alt="Logo" width="256">
+  <img src="./docs/icons/elu_charger-transformed.png" alt="Logo" width="256">
 </p>
 
 <img src="https://img.shields.io/badge/release-v1.0-blue"/>
