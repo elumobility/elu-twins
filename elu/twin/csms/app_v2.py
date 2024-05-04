@@ -1,8 +1,8 @@
 import asyncio
 import logging
 
-from elu.twin.data.helpers import get_now
 from ocpp.v201.enums import Action, RegistrationStatusType
+from datetime import datetime, UTC
 
 try:
     import websockets
@@ -20,6 +20,13 @@ from ocpp.v201 import ChargePoint as Cp
 from ocpp.v201 import call_result
 
 logging.basicConfig(level=logging.INFO)
+
+
+def get_now(as_string: bool = True) -> datetime | str:
+    now = datetime.now(UTC)
+    if as_string:
+        return now.isoformat()
+    return now
 
 
 class ChargePoint(Cp):
