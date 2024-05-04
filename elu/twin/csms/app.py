@@ -4,7 +4,7 @@ import random
 
 from ocpp.v16.datatypes import IdTagInfo
 
-from elu.twin.data.helpers import get_now
+from datetime import datetime, UTC
 
 try:
     import websockets
@@ -36,6 +36,13 @@ from ocpp.v16.enums import (
 )
 
 logging.basicConfig(level=logging.INFO)
+
+
+def get_now(as_string: bool = True) -> datetime | str:
+    now = datetime.now(UTC)
+    if as_string:
+        return now.isoformat()
+    return now
 
 
 class ChargePoint(Cp):
