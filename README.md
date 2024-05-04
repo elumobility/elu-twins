@@ -25,7 +25,15 @@ ELU Twins emulate devices related with electro mobility. At the moment, we suppo
 - Currently under development, the OCPP 2.0.1 version is not yet fully implemented, but we're working on it.
 
 ### How to run
+We suggest to build and run this project using docker, this can be done as follows:
+
+```shell
+docker-compose up --build 
+```
+### Get started guides
+- To dos
 
 ### Known issues
+- Need to add tests
 
 ## How to contribute
