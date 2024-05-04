@@ -26,3 +26,6 @@ ELU Twins emulate devices related with electro mobility. At the moment, we suppo
 
 ### How to run
 
+### Known issues
+
+## How to contribute
