@@ -14,6 +14,8 @@ ELU Twins emulate devices related with electro mobility. With this project, it i
 ## Comments
 We open-sourced this project on the 06/06/2024 and it is still work in progress. This means that you may find bugs, missing features, and lack of tests. We are working on improving all of this.
 
+This is a dynamic project and we focused more on getting it public and stable.
+
 ### OCPP 1.6
 
 - Core (Done)
