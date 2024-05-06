@@ -36,7 +36,13 @@ docker-compose up --build
 ### Interactive API docs
 You will see the automatic interactive API documentation:
 - Public API: (http://127.0.0.1:8000/docs)
+  <p align="center">
+  <img src="./docs/icons/public_api.png" alt="Logo" width="256">
+  </p>
 - Private API: (http://127.0.0.1:8800/docs)
+  <p align="center">
+  <img src="./docs/icons/public_api.png" alt="Logo" width="256">
+  </p>
 
 ### Get started guides
 - To access the interactive docs for the
