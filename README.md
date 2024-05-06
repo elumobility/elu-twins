@@ -12,7 +12,7 @@ easier testing and demoing for e-mobility software such as a charge management s
 ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
 
 ## Comments
-We open-sourced this project on the 06/06/2024 and it is still work in progress. This means that you may find bugs, missing features, and lack of tests. We are working on improving all of this, 
+We open-sourced this project on the 06/06/2024 and it is still work in progress. This means that you may find bugs, missing features, and lack of tests. We are working on improving all of this.
 
 ### OCPP 1.6
 
@@ -33,6 +33,10 @@ We suggest to build and run this project using docker, this can be done as follo
 ```shell
 docker-compose up --build 
 ```
+
+### Get started guides
+- For how to use the API, we refer to the section below about the API docs or you can check out the jupyter notebook found under ```notebooks/quick_start_api.ipynb```
+  
 ### Interactive API docs
 You will see the automatic interactive API documentation:
 - Public API: (http://127.0.0.1:8000/docs)
@@ -41,12 +45,9 @@ You will see the automatic interactive API documentation:
   </p>
 - Private API: (http://127.0.0.1:8800/docs)
   <p align="center">
-  <img src="./docs/icons/public_api.png">
+  <img src="./docs/icons/private_api.png">
   </p>
 
-### Get started guides
-- To access the interactive docs for the
-- Fo
 
 ### Known issues
 - Need to add tests
