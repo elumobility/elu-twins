@@ -55,7 +55,7 @@ You will see the automatic interactive API documentation:
 ## How to contribute
 
 We welcome contributions from everyone who is willing to improve this project. Whether you're fixing bugs, adding new features, improving documentation, or suggesting new ideas, your help is greatly appreciated! Just make sure you follow these simple guidelines before opening up a PR:
-- Follow the Code of Conduct: Always adhere to the Code of Conduct and be respectful of others in the community.
+- Follow the [Code of Conduct](CODE_OF_CONDUCT.md): Always adhere to the Code of Conduct and be respectful of others in the community.
 - Test Your Changes: Ensure your code is tested and as bug-free as possible.
 - Update Documentation: If you're adding new features or making changes that require it, update the documentation accordingly.
 
