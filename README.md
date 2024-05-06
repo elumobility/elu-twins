@@ -14,7 +14,7 @@ ELU Twins emulate devices related with electro mobility. With this project, it i
 ## Comments
 We open-sourced this project on the 06/06/2024 and it is still work in progress. This means that you may find bugs, missing features, and lack of tests. We are working on improving all of this.
 
-This is a dynamic project and we focused more on getting it public and stable.
+This is a dynamic project and our **main** priority is releasing the project and not on making it stable. This means that you may encounter issues and bugs.
 
 ### OCPP 1.6
 
@@ -24,6 +24,7 @@ This is a dynamic project and we focused more on getting it public and stable.
 - Reservation (Not Done)
 - Smart Charging (Semi Done)
 - Remote Trigger (Done)
+- 
 
 ### OCPP 2.0.1
 
@@ -35,9 +36,19 @@ We suggest to build and run this project using docker, this can be done as follo
 ```shell
 docker-compose up --build 
 ```
-### What is running
-Enumerate what is running
-Write services that are starting 
+### What is running with docker-compose
+After docker-compose is executed, the following services will be started:
+1. Public API: (http://127.0.0.1:8000/docs)
+2. Private API: (http://127.0.0.1:8800/docs)
+3. Charge point flower: (http://localhost:5555/) - Open source tool to manage Celery clusters, see [here](https://flower.readthedocs.io/en/latest/) for more information
+4. Charge point celery: each charger is a different thread using Celery, see [here](https://docs.celeryq.dev/en/stable/#)
+5. Csmsv2: CSMS for OCPP 2.0.1
+6. csmsv16: CSMS for OCPP 1.6
+7. Redis:
+8. DB: postgres
+
+### Examples of how to use the API
+
 ### Get started guides
 - For how to use the API, we refer to the section below about the API docs or you can check out the jupyter notebook found under ```notebooks/quick_start_api.ipynb```
   
@@ -47,8 +58,9 @@ You will see the automatic interactive API documentation:
 - Private API: (http://127.0.0.1:8800/docs)
 
 
-## Known issues
-- Need to add tests
+## Next steps
+- Add tests
+- Add coverage
 
 ## How to contribute
 
