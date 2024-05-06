@@ -35,20 +35,16 @@ We suggest to build and run this project using docker, this can be done as follo
 ```shell
 docker-compose up --build 
 ```
-
+### What is running
+Enumerate what is running
+Write services that are starting 
 ### Get started guides
 - For how to use the API, we refer to the section below about the API docs or you can check out the jupyter notebook found under ```notebooks/quick_start_api.ipynb```
   
 ### Interactive API docs
 You will see the automatic interactive API documentation:
 - Public API: (http://127.0.0.1:8000/docs)
-  <p align="center">
-  <img src="./docs/icons/public_api.png">
-  </p>
 - Private API: (http://127.0.0.1:8800/docs)
-  <p align="center">
-  <img src="./docs/icons/private_api.png">
-  </p>
 
 
 ## Known issues
