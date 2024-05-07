@@ -9,11 +9,7 @@ This is the open-source version of our product: ELU Twins. The goal is to allow 
 easier testing and demoing for e-mobility software such as a charge management system. 
 
 ## Disclaimar
-We open-sourced this project on the 06/05/2024 and it is still work in progress. This means that you may find bugs, missing features, and lack of tests. We are working on improving all of this.
-
-We decide to open-source this because . So our main priority is on releasing new features and not on making it stable. This means that you may encounter issues and bugs.
-
-This is a dynamic project and our **main** priority is releasing the project and not on making it stable. 
+We decide to open-source our project to allow our customers to run it locally. Our **main** priority is on releasing new features and not on making it stable. This means that you may encounter issues and bugs. 
 
 # Description
 ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
@@ -60,10 +56,11 @@ After docker-compose is executed, the following services will be started:
 ### Examples of how to use the API
 Step 1 create a user and token and step 2 generate a vehicle and charger, step 3 connect a charger and start a charging session
 Create API token
-#### How to create a user
+#### Step 1 - How to create a user and token
 
 ```python
-import requests 
+import requests
+# create user
 headers = {
 'accept': 'application/json',
 'Content-Type': 'application/json',
@@ -74,15 +71,8 @@ json_data = {
 }
 create_user_url = 'http://localhost:8800/user/'
 response = requests.post(create_user_url, headers=headers, json=json_data)
-```
-#### How to create a token
-```python
-import requests 
 
-headers = {
-    'accept': 'application/json',
-    'Content-Type': 'application/x-www-form-urlencoded',
-}
+# create token
 
 data = {
     'grant_type': '',
@@ -95,16 +85,18 @@ data = {
 token_url = 'http://localhost:8000/token'
 
 response = requests.post(token_url, headers=headers, data=data)
+token = response.json().get("access_token")
 ```
 
-#### How to create a vehicle add output
+#### Step 2 - How to create a vehicles and chargers add output
 ```python
 import requests 
 
 headers = {'accept': 'application/json',
- 'Authorization': 'Bearer **insert token here**',
+ 'Authorization': 'Bearer **insert token from step 1 here**',
  'Content-Type': 'application/json'}
 
+# create vehicle
 
 json_data = {
             'name': 'BMW I3',
@@ -114,6 +106,22 @@ json_data = {
 vehicle_url = "http://localhost:8000/twin/vehicle/"
 
 response = requests.post(vehicle, headers=headers, json=json_data)
+
+# create charger
+
+json_data = {
+              "name": "Terra180",
+              "maximum_dc_power": 180,
+              "maximum_ac_power": 20,
+              "csms_url": "ws://csms:9000",
+              "evses": [
+                  {"connectors":[{"connector_type": "cCCS1"}]}, 
+                  {"connectors":[{"connector_type": "cCCS1"}]}]
+            }
+charger = "http://localhost:8000/twin/charge-point/"
+
+response = requests.post(charger, headers=headers, json=json_data)
+
 ```
 
 #### How to create a charger add output
