@@ -52,17 +52,83 @@ After docker-compose is executed, the following services will be started:
 
 ```python
 import requests 
-    headers = {
-    'accept': 'application/json',
-    'Content-Type': 'application/json',
-    }
-    json_data = {
-        'username': user,
-        'password': password,
-    }
-    create_user_url = 'http://localhost:8800/user/'
-    response = requests.post(create_user_url, headers=headers, json=json_data)
+headers = {
+'accept': 'application/json',
+'Content-Type': 'application/json',
+}
+json_data = {
+    'username': user,
+    'password': password,
+}
+create_user_url = 'http://localhost:8800/user/'
+response = requests.post(create_user_url, headers=headers, json=json_data)
 ```
+#### How to create a token
+```python
+import requests 
+
+headers = {
+    'accept': 'application/json',
+    'Content-Type': 'application/x-www-form-urlencoded',
+}
+
+data = {
+    'grant_type': '',
+    'username': user,
+    'password': password,
+    'scope': '',
+    'client_id': '',
+    'client_secret': '',
+}
+token_url = 'http://localhost:8000/token'
+
+response = requests.post(token_url, headers=headers, data=data)
+```
+
+#### How to create a vehicle
+```python
+import requests 
+
+{'accept': 'application/json',
+ 'Authorization': 'Bearer **insert token here**',
+ 'Content-Type': 'application/json'}
+
+
+json_data = {
+            'name': 'BMW I3',
+            'battery_capacity': 65,
+            'maximum_charging_rate': 50
+        }
+vehicle_url = f"{url}/twin/vehicle/"
+
+response = requests.post(vehicle, headers=headers, json=json_data)
+```
+
+#### How to create a charger
+```python
+import requests 
+
+{'accept': 'application/json',
+ 'Authorization': 'Bearer **insert token here**',
+ 'Content-Type': 'application/json'}
+
+
+json_data = {
+              "name": "Terra180",
+              "maximum_dc_power": 180,
+              "maximum_ac_power": 20,
+              "csms_url": "ws://csms:9000",
+              "evses": [
+                  {"connectors":[{"connector_type": "cCCS1"}]}, 
+                  {"connectors":[{"connector_type": "cCCS1"}]}]
+            }
+charger = f"{url}/twin/charge-point/"
+
+response = requests.post(charger, headers=headers, json=json_data)
+```
+
+#### Further examples
+You can check out the jupyter notebook found under ```notebooks/quick_start_api.ipynb```
 
 ### Get started guides
 - For how to use the API, we refer to the section below about the API docs or you can check out the jupyter notebook found under ```notebooks/quick_start_api.ipynb```
