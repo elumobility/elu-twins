@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "A set to tools to emulate devices related with electro mobility"
 authors = ["Alfonso Sastre <alfonso@elumobility.com>"]
 readme = "README.md"
+[tool.poetry_bumpversion.file."__init__.py"]
 
 [tool.poetry.dependencies]
 python = "^3.12"
