@@ -110,7 +110,7 @@ response = requests.post(vehicle, headers=headers, json=json_data)
 ```
 If successful, the returned response is 
 
-```
+```javascript
 {'created_at': '2024-05-06T06:30:56.568111',
  'updated_at': '2024-05-06T06:30:56.568177',
  'name': 'BMW I3',
@@ -132,7 +132,7 @@ headers = {'accept': 'application/json',
  'Authorization': 'Bearer **insert token from step 1 here**',
  'Content-Type': 'application/json'}
 json_data = {
-              "name": "Terra180",
+              "name": "Charger 1",
               "maximum_dc_power": 180,
               "maximum_ac_power": 20,
               "csms_url": "ws://csms:9000",
@@ -146,8 +146,8 @@ response = requests.post(charger, headers=headers, json=json_data)
 
 ```
 If successful, the returned response is 
-```json
-{'name': 'Marseille charger 0',
+```javascript
+{'name': 'Charger 1',
  'cid': 'ELU-WIU4-KNKTT-821XH28NUWB',
  'vendor': 'Elu Twin',
  'model': 'Digital Twin',
@@ -157,7 +157,7 @@ If successful, the returned response is
  'boot_reason': None,
  'voltage_ac': 230,
  'voltage_dc': 400,
- 'maximum_dc_power': 150,
+ 'maximum_dc_power': 180,
  'maximum_ac_power': 20,
  'status': 'Unavailable',
  'charge_point_task_id': None,
