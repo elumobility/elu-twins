@@ -8,10 +8,12 @@
 This is the open-source version of our product: ELU Twins. The goal is to allow users to simulate charging sessions and driving behavior enabling
 easier testing and demoing for e-mobility software such as a charge management system. 
 
-## Comments
-We open-sourced this project on the 06/06/2024 and it is still work in progress. This means that you may find bugs, missing features, and lack of tests. We are working on improving all of this.
+## Disclaimar
+We open-sourced this project on the 06/05/2024 and it is still work in progress. This means that you may find bugs, missing features, and lack of tests. We are working on improving all of this.
 
-This is a dynamic project and our **main** priority is releasing the project and not on making it stable. This means that you may encounter issues and bugs.
+We decide to open-source this because . So our main priority is on releasing new features and not on making it stable. This means that you may encounter issues and bugs.
+
+This is a dynamic project and our **main** priority is releasing the project and not on making it stable. 
 
 # Description
 ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
@@ -46,8 +48,8 @@ docker-compose up --build
 
 ### What is running with docker-compose
 After docker-compose is executed, the following services will be started:
-1. Public API: (http://127.0.0.1:8000/docs)
-2. Private API: (http://127.0.0.1:8800/docs)
+1. Public API: this API expose user interactions, see interactive documentation [here](http://127.0.0.1:8000/docs)
+2. Private API: this API exposes internal actions, see interactive documentation [here](http://127.0.0.1:8800/docs)
 3. Charge point flower: (http://localhost:5555/) - Open source tool to manage Celery clusters, see [here](https://flower.readthedocs.io/en/latest/) for more information
 4. Charge point celery: Simulated charge point using OCPP, using Celery, see [here](https://docs.celeryq.dev/en/stable/#)
 5. Csmsv2: CSMS for OCPP 2.0.1
@@ -56,6 +58,8 @@ After docker-compose is executed, the following services will be started:
 8. DB: postgres
 
 ### Examples of how to use the API
+Step 1 create a user and token and step 2 generate a vehicle and charger, step 3 connect a charger and start a charging session
+Create API token
 #### How to create a user
 
 ```python
@@ -93,11 +97,11 @@ token_url = 'http://localhost:8000/token'
 response = requests.post(token_url, headers=headers, data=data)
 ```
 
-#### How to create a vehicle
+#### How to create a vehicle add output
 ```python
 import requests 
 
-{'accept': 'application/json',
+headers = {'accept': 'application/json',
  'Authorization': 'Bearer **insert token here**',
  'Content-Type': 'application/json'}
 
@@ -112,11 +116,11 @@ vehicle_url = "http://localhost:8000/twin/vehicle/"
 response = requests.post(vehicle, headers=headers, json=json_data)
 ```
 
-#### How to create a charger
+#### How to create a charger add output
 ```python
 import requests 
 
-{'accept': 'application/json',
+headers = {'accept': 'application/json',
  'Authorization': 'Bearer **insert token here**',
  'Content-Type': 'application/json'}
 
@@ -142,8 +146,7 @@ You can check out the jupyter notebook found under [here](notebooks/quick_start_
 
 
 ## Next steps
-- Add tests
-- Add coverage
+- Increase coverage
 
 ## How to contribute
 
