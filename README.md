@@ -258,9 +258,7 @@ Now the charger is available for charging and you can start charging sessions. T
 
 
 #### Further examples
-You can check out the jupyter notebook found under [here](notebooks/quick_start_api.ipynb) or check out the interactive interactive API documentation:
-- Public API: (http://127.0.0.1:8000/docs)
-- Private API: (http://127.0.0.1:8800/docs)
+You can check out the jupyter notebook found under [here](notebooks/quick_start_api.ipynb).
 
 
 ## Next steps
