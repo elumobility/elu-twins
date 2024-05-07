@@ -49,7 +49,7 @@ After docker-compose is executed, the following services will be started:
 1. Public API: (http://127.0.0.1:8000/docs)
 2. Private API: (http://127.0.0.1:8800/docs)
 3. Charge point flower: (http://localhost:5555/) - Open source tool to manage Celery clusters, see [here](https://flower.readthedocs.io/en/latest/) for more information
-4. Charge point celery: each charger is a different thread using Celery, see [here](https://docs.celeryq.dev/en/stable/#)
+4. Charge point celery: Simulated charge point using OCPP, using Celery, see [here](https://docs.celeryq.dev/en/stable/#)
 5. Csmsv2: CSMS for OCPP 2.0.1
 6. csmsv16: CSMS for OCPP 1.6
 7. Redis:
