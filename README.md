@@ -30,12 +30,20 @@ This is a dynamic project and our **main** priority is releasing the project and
 
 - Currently under development, the OCPP 2.0.1 version is not yet fully implemented, but we're working on it.
 
-### How to run
+### Install and build
+
+#### Pre-requisites
+The project can be be built using ether docker or natively.
+
+#### With Docker
+
+Docker must be installed.
 We suggest to build and run this project using docker, this can be done as follows:
 
 ```shell
 docker-compose up --build 
 ```
+
 ### What is running with docker-compose
 After docker-compose is executed, the following services will be started:
 1. Public API: (http://127.0.0.1:8000/docs)
