@@ -60,6 +60,7 @@ Create API token
 
 ```python
 import requests
+
 # create user
 headers = {
 'accept': 'application/json',
@@ -88,7 +89,8 @@ response = requests.post(token_url, headers=headers, data=data)
 token = response.json().get("access_token")
 ```
 
-#### Step 2 - How to create a vehicles and chargers add output
+#### Step 2 - How to create a vehicles and chargers
+##### create vehicles
 ```python
 import requests 
 
@@ -97,7 +99,6 @@ headers = {'accept': 'application/json',
  'Content-Type': 'application/json'}
 
 # create vehicle
-
 json_data = {
             'name': 'BMW I3',
             'battery_capacity': 65,
@@ -106,9 +107,30 @@ json_data = {
 vehicle_url = "http://localhost:8000/twin/vehicle/"
 
 response = requests.post(vehicle, headers=headers, json=json_data)
+```
+If successful, the returned response is 
 
-# create charger
+```
+{'created_at': '2024-05-06T06:30:56.568111',
+ 'updated_at': '2024-05-06T06:30:56.568177',
+ 'name': 'BMW I3',
+ 'id_tag_suffix': 'NEAKPLTYIK',
+ 'battery_capacity': 65,
+ 'maximum_dc_charging_rate': 50,
+ 'maximum_ac_charging_rate': 50,
+ 'soc': 10.0,
+ 'status': 'ready-to-charge',
+ 'id': '1140b70f-9971-41b6-bd70-8a59e4242002',
+ 'transaction_id': None}
+```
 
+##### create charger
+```python
+import requests 
+
+headers = {'accept': 'application/json',
+ 'Authorization': 'Bearer **insert token from step 1 here**',
+ 'Content-Type': 'application/json'}
 json_data = {
               "name": "Terra180",
               "maximum_dc_power": 180,
@@ -122,6 +144,83 @@ charger = "http://localhost:8000/twin/charge-point/"
 
 response = requests.post(charger, headers=headers, json=json_data)
 
+```
+If successful, the returned response is 
+```json
+{'name': 'Marseille charger 0',
+ 'cid': 'ELU-WIU4-KNKTT-821XH28NUWB',
+ 'vendor': 'Elu Twin',
+ 'model': 'Digital Twin',
+ 'password': '1234',
+ 'csms_url': 'ws://csms:9000',
+ 'ocpp_protocol': 'ocpp1.6',
+ 'boot_reason': None,
+ 'voltage_ac': 230,
+ 'voltage_dc': 400,
+ 'maximum_dc_power': 150,
+ 'maximum_ac_power': 20,
+ 'status': 'Unavailable',
+ 'charge_point_task_id': None,
+ 'last_heartbeat': None,
+ 'token_cost_per_minute': 2,
+ 'id': '425d8189-746c-4295-a57d-8ed1e89ccc75',
+ 'quota_id': '2e87f9e3-a789-4254-b29e-1a2b2d293ba5',
+ 'ocpp_configuration_v16_id': '07c13e4b-ceea-4167-8017-7c3fc5efb612',
+ 'created_at': '2024-05-06T06:31:00.583905',
+ 'updated_at': '2024-05-06T06:31:00.583943',
+ 'evses': [{'created_at': '2024-05-06T06:31:00.591886',
+   'updated_at': '2024-05-06T06:31:00.591911',
+   'id': 'bbf1820b-e2d9-4c85-9746-8169df2d0c12',
+   'evseid': 1,
+   'status': 'unavailable',
+   'active_connector_id': None,
+   'connectors': [{'created_at': '2024-05-06T06:31:00.596059',
+     'updated_at': '2024-05-06T06:31:00.596073',
+     'id': '7da880c2-604e-4980-ba06-0683daf0672d',
+     'connectorid': 1,
+     'status': 'unavailable',
+     'current_dc_power': 0,
+     'current_dc_current': 0,
+     'current_dc_voltage': 0,
+     'current_ac_power': 0,
+     'current_ac_current': 0,
+     'current_ac_voltage': 0,
+     'current_energy': 0.0,
+     'total_energy': 0.0,
+     'soc': None,
+     'connector_type': 'cCCS1',
+     'id_tag': None,
+     'transactionid': None,
+     'queued_action': [],
+     'transaction_id': None,
+     'vehicle_id': None}]},
+  {'created_at': '2024-05-06T06:31:00.598812',
+   'updated_at': '2024-05-06T06:31:00.598820',
+   'id': 'b1eaca84-d9ce-4f50-b4d0-972daa38834d',
+   'evseid': 2,
+   'status': 'unavailable',
+   'active_connector_id': None,
+   'connectors': [{'created_at': '2024-05-06T06:31:00.600922',
+     'updated_at': '2024-05-06T06:31:00.600943',
+     'id': '2ea0591c-5546-4486-9a75-62f62a0a9704',
+     'connectorid': 2,
+     'status': 'unavailable',
+     'current_dc_power': 0,
+     'current_dc_current': 0,
+     'current_dc_voltage': 0,
+     'current_ac_power': 0,
+     'current_ac_current': 0,
+     'current_ac_voltage': 0,
+     'current_energy': 0.0,
+     'total_energy': 0.0,
+     'soc': None,
+     'connector_type': 'cCCS1',
+     'id_tag': None,
+     'transactionid': None,
+     'queued_action': [],
+     'transaction_id': None,
+     'vehicle_id': None}]}],
+ 'user_id': '52ca0620-a51a-4233-bd16-4250b163ca06'}
 ```
 
 #### How to create a charger add output
