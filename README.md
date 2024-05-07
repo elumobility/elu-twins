@@ -238,6 +238,7 @@ json_data = {
             }
             
 response = requests.post(url="localhost:8000/twin/charge-point/action/connect-charger", headers=headers, json=json_data)
+```
 
 Now the charger is available for charging and you can start charging sessions. To start a charging session, you need the id of the connector and the id of the vehicle you want to start charging.
 
