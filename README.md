@@ -99,7 +99,7 @@ json_data = {
             'battery_capacity': 65,
             'maximum_charging_rate': 50
         }
-vehicle_url = f"{url}/twin/vehicle/"
+vehicle_url = "http://localhost:8000/twin/vehicle/"
 
 response = requests.post(vehicle, headers=headers, json=json_data)
 ```
@@ -122,7 +122,7 @@ json_data = {
                   {"connectors":[{"connector_type": "cCCS1"}]}, 
                   {"connectors":[{"connector_type": "cCCS1"}]}]
             }
-charger = f"{url}/twin/charge-point/"
+charger = "http://localhost:8000/twin/charge-point/"
 
 response = requests.post(charger, headers=headers, json=json_data)
 ```
