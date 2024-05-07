@@ -48,6 +48,21 @@ After docker-compose is executed, the following services will be started:
 8. DB: postgres
 
 ### Examples of how to use the API
+#### How to create a user
+
+```python
+import requests 
+    headers = {
+    'accept': 'application/json',
+    'Content-Type': 'application/json',
+    }
+    json_data = {
+        'username': user,
+        'password': password,
+    }
+    create_user_url = 'http://localhost:8800/user/'
+    response = requests.post(create_user_url, headers=headers, json=json_data)
+```
 
 ### Get started guides
 - For how to use the API, we refer to the section below about the API docs or you can check out the jupyter notebook found under ```notebooks/quick_start_api.ipynb```
