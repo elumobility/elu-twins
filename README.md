@@ -54,8 +54,7 @@ After docker-compose is executed, the following services will be started:
 8. DB: postgres
 
 ### Examples of how to use the API
-Step 1 create a user and token and step 2 generate a vehicle and charger, step 3 connect a charger and start a charging session
-Create API token
+
 #### Step 1 - How to create a user and token
 
 ```python
@@ -256,28 +255,7 @@ Now the charger is available for charging and you can start charging sessions. T
       response = requests.post(start_url, headers=headers, json=json_data)
 ```
 
-#### How to create a charger add output
-```python
-import requests 
 
-headers = {'accept': 'application/json',
- 'Authorization': 'Bearer **insert token here**',
- 'Content-Type': 'application/json'}
-
-
-json_data = {
-              "name": "Terra180",
-              "maximum_dc_power": 180,
-              "maximum_ac_power": 20,
-              "csms_url": "ws://csms:9000",
-              "evses": [
-                  {"connectors":[{"connector_type": "cCCS1"}]}, 
-                  {"connectors":[{"connector_type": "cCCS1"}]}]
-            }
-charger = "http://localhost:8000/twin/charge-point/"
-
-response = requests.post(charger, headers=headers, json=json_data)
-```
 
 #### Further examples
 You can check out the jupyter notebook found under [here](notebooks/quick_start_api.ipynb) or check out the interactive interactive API documentation:
