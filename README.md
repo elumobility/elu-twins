@@ -128,7 +128,7 @@ response = requests.post(charger, headers=headers, json=json_data)
 ```
 
 #### Further examples
-You can check out the jupyter notebook found under ```notebooks/quick_start_api.ipynb```
+You can check out the jupyter notebook found under [here](notebooks/quick_start_api.ipynb)
 
 ### Get started guides
 - For how to use the API, we refer to the section below about the API docs or you can check out the jupyter notebook found under ```notebooks/quick_start_api.ipynb```
