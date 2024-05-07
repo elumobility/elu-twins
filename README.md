@@ -8,13 +8,13 @@
 This is the open-source version of our product: ELU Twins. The goal is to allow users to simulate charging sessions and driving behavior enabling
 easier testing and demoing for e-mobility software such as a charge management system. 
 
-# Description
-ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
-
 ## Comments
 We open-sourced this project on the 06/06/2024 and it is still work in progress. This means that you may find bugs, missing features, and lack of tests. We are working on improving all of this.
 
 This is a dynamic project and our **main** priority is releasing the project and not on making it stable. This means that you may encounter issues and bugs.
+
+# Description
+ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
 
 ### OCPP 1.6
 
