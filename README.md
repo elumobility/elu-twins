@@ -88,6 +88,7 @@ token_url = 'http://localhost:8000/token'
 response = requests.post(token_url, headers=headers, data=data)
 token = response.json().get("access_token")
 ```
+**The token has to be added to the header for any calls to the API as shown in the examples below.**
 
 #### Step 2 - How to create a vehicles and chargers
 ##### create vehicles
@@ -124,7 +125,7 @@ If successful, the returned response is
  'transaction_id': None}
 ```
 
-##### create charger
+##### create chargers
 ```python
 import requests 
 
@@ -140,7 +141,7 @@ json_data = {
                   {"connectors":[{"connector_type": "cCCS1"}]}, 
                   {"connectors":[{"connector_type": "cCCS1"}]}]
             }
-charger = "http://localhost:8000/twin/charge-point/"
+charger = "localhost:8000/twin/charge-point/"
 
 response = requests.post(charger, headers=headers, json=json_data)
 
@@ -221,6 +222,37 @@ If successful, the returned response is
      'transaction_id': None,
      'vehicle_id': None}]}],
  'user_id': '52ca0620-a51a-4233-bd16-4250b163ca06'}
+```
+
+#### Step 3 - Connect chargers and start charging sessions
+
+To connect a charger, you need the id of the charger you want to connect. In step 2, in the returned object of creating a charger, we get the id. In the example above the id is 425d8189-746c-4295-a57d-8ed1e89ccc75. To connect a charger, we do the following:  
+```python
+
+headers = {'accept': 'application/json',
+ 'Authorization': 'Bearer **insert token from step 1 here**',
+ 'Content-Type': 'application/json'}
+
+json_data = {
+                "charge_point_id": '425d8189-746c-4295-a57d-8ed1e89ccc75'
+            }
+            
+response = requests.post(url="localhost:8000/twin/charge-point/action/connect-charger", headers=headers, json=json_data)
+
+Now the charger is available for charging and you can start charging sessions. To start a charging session, you need the id of the connector and the id of the vehicle you want to start charging.
+
+```python
+  headers = {'accept': 'application/json',
+ 'Authorization': 'Bearer **insert token from step 1 here**',
+ 'Content-Type': 'application/json'}
+
+ json_data = {
+          "connector_id": "7da880c2-604e-4980-ba06-0683daf0672d",
+          "vehicle_id": "1140b70f-9971-41b6-bd70-8a59e4242002"
+        }
+      
+      start_url = "localhost:8000/twin/charge-point/action/start-transaction"
+      response = requests.post(start_url, headers=headers, json=json_data)
 ```
 
 #### How to create a charger add output
