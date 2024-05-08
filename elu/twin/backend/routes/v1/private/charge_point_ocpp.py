@@ -1,4 +1,5 @@
 """elu module"""
+
 import logging
 
 from elu.twin.data.schemas.auth import OutputAuthV16, InputAuthV16
@@ -31,7 +32,7 @@ router = APIRouter(
 )
 
 
-@router.get("/charge-point/{charge_point_id}", response_model=OutputChargePoint)
+@router.get("/{charge_point_id}", response_model=OutputChargePoint)
 async def get_charge_point(
     *,
     session: Session = Depends(get_session),
@@ -53,9 +54,7 @@ async def get_charge_point(
     )
 
 
-@router.put(
-    "/charge-point/status/{charge_point_id}/{status}", response_model=OutputChargePoint
-)
+@router.put("/status/{charge_point_id}/{status}", response_model=OutputChargePoint)
 def update_charger_status(
     *,
     session: Session = Depends(get_session),
@@ -81,7 +80,7 @@ def update_charger_status(
     return db_charge_point
 
 
-@router.patch("/charge-point/{charge_point_id}", response_model=OutputChargePoint)
+@router.patch("/{charge_point_id}", response_model=OutputChargePoint)
 def update_charger(
     *,
     session: Session = Depends(get_session),
@@ -192,7 +191,7 @@ def update_connector_state(
 
 
 @router.get(
-    "/charge-point/configuration/{configuration_id}",
+    "/configuration/{configuration_id}",
     response_model=OutputOcppConfigurationV16,
 )
 def get_ocpp_configuration(
@@ -217,7 +216,7 @@ def get_ocpp_configuration(
 
 
 @router.put(
-    "/charge-point/configuration/{configuration_id}",
+    "/configuration/{configuration_id}",
     response_model=OutputOcppConfigurationV16,
 )
 def update_ocpp_configuration(

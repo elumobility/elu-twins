@@ -39,7 +39,11 @@ async def create_charger_async(charge_point_id: Index):
     :param charge_point_id:
     :return:
     """
+    logger.info(f"charge point id: {charge_point_id}")
+    print(f"charge point id: {charge_point_id}")
     cpi: OutputChargePoint = await requests.get_charge_point(charge_point_id)
+    logger.warning(f"cpi: {cpi}")
+    logging.info(f"Connecting to {cpi}")
     configuration = await requests.get_charge_point_configuration(
         cpi.ocpp_configuration_v16_id
     )
