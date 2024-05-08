@@ -31,10 +31,13 @@ from loguru import logger
 
 
 API_PREFIX = "twin"
-API_OCPP_PREFIX = f"{API_PREFIX}/ocpp"
-API_OPERATIONS_PREFIX = f"operations/ocpp"
+# API_PREFIX = f"{API_PREFIX}/ocpp"
+
 API_VEHICLE_PREFIX = f"{API_PREFIX}/vehicle"
+CHARGER_PREFIX = "charge_point"
 API_QUOTA_PREFIX = f"{API_PREFIX}/quota"
+API_CHARGER_PREFIX = f"{BACKEND_PRIVATE_URL}/{API_PREFIX}/{CHARGER_PREFIX}"
+API_OPERATIONS_PREFIX = f"{BACKEND_PRIVATE_URL}/operations/{CHARGER_PREFIX}/transaction"
 
 headers = {"Content-Type": "application/json"}
 
@@ -45,7 +48,7 @@ async def get_charge_point(cid: Index) -> OutputChargePoint:
     :param cid:
     :return:
     """
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/charge-point/{cid}"
+    url = f"{API_CHARGER_PREFIX}/{cid}"
     logging.info("Connecting to %s", url)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -63,7 +66,7 @@ async def get_charge_point_configuration(
 
     :return:
     """
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/charge-point/configuration/{configuration_id}"
+    url = f"{API_CHARGER_PREFIX}/configuration/{configuration_id}"
     logging.info("Connecting to %s", url)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -82,7 +85,7 @@ async def start_transaction(
     :param transaction:
     :return:
     """
-    url = f"{BACKEND_PRIVATE_URL}/twin/charge-point/action/start-transaction/{user_id}"
+    url = f"{API_CHARGER_PREFIX}/action/start-transaction/{user_id}"
     logging.info("")
     async with aiohttp.ClientSession() as session:
         async with session.post(
@@ -104,7 +107,7 @@ async def stop_transaction(
     :param transaction:
     :param user_id:
     """
-    url = f"{BACKEND_PRIVATE_URL}/twin/charge-point/action/stop-transaction/{user_id}"
+    url = f"{API_CHARGER_PREFIX}/action/stop-transaction/{user_id}"
     async with aiohttp.ClientSession() as session:
         async with session.post(
             url, headers=headers, data=transaction.model_dump_json()
@@ -125,7 +128,7 @@ async def update_chager_point_configuration(
     :param configuration_id:
     :return:
     """
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/charge-point/configuration/{configuration_id}"
+    url = f"{API_CHARGER_PREFIX}/configuration/{configuration_id}"
     logging.warning(f"updating configuration: configuration_id: {configuration}")
     logging.info("Connecting to %s", url)
     async with aiohttp.ClientSession() as session:
@@ -173,7 +176,7 @@ async def update_charger_status(cid: Index, status: ChargePointStatus):
     :param cid:
     :param status:
     """
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/charge-point/status/{cid}/{status.value}"
+    url = f"{API_CHARGER_PREFIX}/status/{cid}/{status.value}"
     async with aiohttp.ClientSession() as session:
         async with session.put(url) as response:
             logging.warning(response.status)
@@ -189,7 +192,7 @@ async def update_evse_status(
     :param active_connector:
     """
     logger.debug(f"active connector: {active_connector}")
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/evse/status/{evse_id}/{status}"
+    url = f"{API_CHARGER_PREFIX}/evse/status/{evse_id}/{status}"
     params = {} if active_connector is None else {"active_connector": active_connector}
     async with aiohttp.ClientSession() as session:
         async with session.put(url, params=params) as response:
@@ -202,7 +205,7 @@ async def update_connector_status(connector_id: Index, status: ConnectorStatus):
     :param connector_id:
     :param status:
     """
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/connector/status/{connector_id}/{status.value}"
+    url = f"{API_CHARGER_PREFIX}/connector/status/{connector_id}/{status.value}"
     async with aiohttp.ClientSession() as session:
         async with session.put(url) as response:
             logging.warning(response.status)
@@ -217,7 +220,7 @@ async def update_connector_values(
     :param connector_update:
     """
 
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/connector/{connector_id}"
+    url = f"{API_CHARGER_PREFIX}/connector/{connector_id}"
     headers = {"Content-Type": "application/json"}
     async with aiohttp.ClientSession() as session:
         async with session.put(
@@ -232,7 +235,7 @@ async def get_transaction(transaction_id: Index) -> OutputTransaction:
     :param transaction_id:
     :return:
     """
-    url = f"{BACKEND_PRIVATE_URL}/{API_OPERATIONS_PREFIX}/transaction/{transaction_id}"
+    url = f"{API_OPERATIONS_PREFIX}/{transaction_id}"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
@@ -250,7 +253,7 @@ async def update_transaction(
     :param transaction_id:
     :param transaction_update:
     """
-    url = f"{BACKEND_PRIVATE_URL}/{API_OPERATIONS_PREFIX}/transaction/{transaction_id}"
+    url = f"{API_OPERATIONS_PREFIX}/{transaction_id}"
     headers = {"Content-Type": "application/json"}
     async with aiohttp.ClientSession() as session:
         async with session.patch(
@@ -268,7 +271,7 @@ async def get_charging_rate(
     :param soc:
     :param power_type:
     """
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/vehicle/charging-rate/{vid}/{power_type}/{soc}"
+    url = f"{BACKEND_PRIVATE_URL}/{API_PREFIX}/vehicle/charging-rate/{vid}/{power_type}/{soc}"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
@@ -284,7 +287,7 @@ async def update_heartbeat(cid: Index, heartbeat: datetime):
     """
     headers = {"Content-Type": "application/json"}
     update = UpdateChargePoint(last_heartbeat=heartbeat)
-    url = f"{BACKEND_PRIVATE_URL}/{API_OCPP_PREFIX}/charge-point/{cid}"
+    url = f"{API_CHARGER_PREFIX}/{cid}"
     async with aiohttp.ClientSession() as session:
         async with session.patch(
             url, headers=headers, data=update.model_dump_json()
