@@ -247,12 +247,30 @@ Now the charger is available for charging and you can start charging sessions. T
  'Content-Type': 'application/json'}
 
  json_data = {
-          "connector_id": "7da880c2-604e-4980-ba06-0683daf0672d",
-          "vehicle_id": "1140b70f-9971-41b6-bd70-8a59e4242002"
-        }
+            "connector_id": "7da880c2-604e-4980-ba06-0683daf0672d",
+            "vehicle_id": "1140b70f-9971-41b6-bd70-8a59e4242002"
+            }
       
       start_url = "localhost:8000/twin/charge-point/action/start-transaction"
       response = requests.post(start_url, headers=headers, json=json_data)
+```
+If successful, the returned response is 
+```javascript
+  {
+    "created_at": "2024-05-08T13:50:46.935050",
+    "updated_at": "2024-05-08T13:50:55.957265",
+    "id": "b57979ba-c071-4dbf-8fb6-233f174e8d6f",
+    "start_time": "2024-05-08T13:50:46.935152",
+    "end_time": null,
+    "energy": 0,
+    "status": "Charging",
+    "transactionid": "5111967",
+    "connector_id": "a16f31c3-50f9-45bb-87c8-31c65f4dc4cf",
+    "vehicle_id": "ca22f8e2-8a91-487d-8701-d185a6dd7a7e",
+    "user_id": "1a47b844-3223-4e66-b9a6-1663079aced0",
+    "evse_id": "c19e2f02-6455-49ff-a071-fc68fa209707",
+    "charge_point_id": "58a8a4d2-5683-4fd5-af3d-7cb7eb6ca4dc"
+  }
 ```
 
 
