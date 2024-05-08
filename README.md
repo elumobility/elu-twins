@@ -62,13 +62,12 @@ import requests
 
 # create user
 headers = {
-'accept': 'application/json',
-'Content-Type': 'application/json',
+    "accept": "application/json",
+    "Content-Type": "application/json",
 }
-json_data = {
-    'username': user,
-    'password': password,
-}
+
+json_data = {'username': user,'password': password }
+
 create_user_url = 'http://localhost:8800/user/'
 response = requests.post(create_user_url, headers=headers, json=json_data)
 
@@ -94,16 +93,15 @@ token = response.json().get("access_token")
 ```python
 import requests 
 
-headers = {'accept': 'application/json',
- 'Authorization': 'Bearer **insert token from step 1 here**',
- 'Content-Type': 'application/json'}
-
+headers = {
+    "accept": "application/json",
+    "Authorization": "Bearer **insert token from step 1 here**",
+    "Content-Type": "application/json",
+}
 # create vehicle
-json_data = {
-            'name': 'BMW I3',
-            'battery_capacity': 65,
-            'maximum_charging_rate': 50
-        }
+
+json_data = {"name": "BMW I3", "battery_capacity": 65, "maximum_charging_rate": 50}
+
 vehicle_url = "http://localhost:8000/twin/vehicle/"
 
 response = requests.post(vehicle, headers=headers, json=json_data)
@@ -128,18 +126,22 @@ If successful, the returned response is
 ```python
 import requests 
 
-headers = {'accept': 'application/json',
- 'Authorization': 'Bearer **insert token from step 1 here**',
- 'Content-Type': 'application/json'}
+headers = {
+    "accept": "application/json",
+    "Authorization": "Bearer **insert token from step 1 here**",
+    "Content-Type": "application/json",
+}
+
 json_data = {
-              "name": "Charger 1",
-              "maximum_dc_power": 180,
-              "maximum_ac_power": 20,
-              "csms_url": "ws://csms:9000",
-              "evses": [
-                  {"connectors":[{"connector_type": "cCCS1"}]}, 
-                  {"connectors":[{"connector_type": "cCCS1"}]}]
-            }
+    "name": "Charger 1",
+    "maximum_dc_power": 180,
+    "maximum_ac_power": 20,
+    "csms_url": "ws://csms:9000",
+    "evses": [
+        {"connectors": [{"connector_type": "cCCS1"}]},
+        {"connectors": [{"connector_type": "cCCS1"}]},
+    ],
+}
 charger = "localhost:8000/twin/charge-point/"
 
 response = requests.post(charger, headers=headers, json=json_data)
@@ -228,13 +230,12 @@ If successful, the returned response is
 To connect a charger, you need the id of the charger you want to connect. In step 2, in the returned object of creating a charger, we get the id. In the example above the id is 425d8189-746c-4295-a57d-8ed1e89ccc75. To connect a charger, we do the following:  
 ```python
 
-headers = {'accept': 'application/json',
- 'Authorization': 'Bearer **insert token from step 1 here**',
- 'Content-Type': 'application/json'}
-
-json_data = {
-                "charge_point_id": '425d8189-746c-4295-a57d-8ed1e89ccc75'
-            }
+headers = {
+    "accept": "application/json",
+    "Authorization": "Bearer **insert token from step 1 here**",
+    "Content-Type": "application/json",
+}
+json_data = { "charge_point_id": '425d8189-746c-4295-a57d-8ed1e89ccc75'}
             
 response = requests.post(url="localhost:8000/twin/charge-point/action/connect-charger", headers=headers, json=json_data)
 ```
@@ -242,38 +243,52 @@ response = requests.post(url="localhost:8000/twin/charge-point/action/connect-ch
 Now the charger is available for charging and you can start charging sessions. To start a charging session, you need the id of the connector and the id of the vehicle you want to start charging.
 
 ```python
-  headers = {'accept': 'application/json',
- 'Authorization': 'Bearer **insert token from step 1 here**',
- 'Content-Type': 'application/json'}
-
- json_data = {
-            "connector_id": "7da880c2-604e-4980-ba06-0683daf0672d",
-            "vehicle_id": "1140b70f-9971-41b6-bd70-8a59e4242002"
-            }
-      
-      start_url = "localhost:8000/twin/charge-point/action/start-transaction"
-      response = requests.post(start_url, headers=headers, json=json_data)
+headers = {
+    "accept": "application/json",
+    "Authorization": "Bearer **insert token from step 1 here**",
+    "Content-Type": "application/json",
+}
+json_data = {
+    "connector_id": "7da880c2-604e-4980-ba06-0683daf0672d",
+    "vehicle_id": "1140b70f-9971-41b6-bd70-8a59e4242002",
+}
+    
+start_url = "localhost:8000/twin/charge-point/action/start-transaction"
+response = requests.post(start_url, headers=headers, json=json_data)
 ```
-If successful, the returned response is 
+
+If successful, a transaction object is returned 
 ```javascript
-  {
-    "created_at": "2024-05-08T13:50:46.935050",
-    "updated_at": "2024-05-08T13:50:55.957265",
-    "id": "b57979ba-c071-4dbf-8fb6-233f174e8d6f",
-    "start_time": "2024-05-08T13:50:46.935152",
-    "end_time": null,
-    "energy": 0,
-    "status": "Charging",
-    "transactionid": "5111967",
-    "connector_id": "a16f31c3-50f9-45bb-87c8-31c65f4dc4cf",
-    "vehicle_id": "ca22f8e2-8a91-487d-8701-d185a6dd7a7e",
-    "user_id": "1a47b844-3223-4e66-b9a6-1663079aced0",
-    "evse_id": "c19e2f02-6455-49ff-a071-fc68fa209707",
-    "charge_point_id": "58a8a4d2-5683-4fd5-af3d-7cb7eb6ca4dc"
-  }
+{
+  "created_at": "2024-05-08T13:50:46.935050",
+  "updated_at": "2024-05-08T13:50:55.957265",
+  "id": "b57979ba-c071-4dbf-8fb6-233f174e8d6f",
+  "start_time": "2024-05-08T13:50:46.935152",
+  "end_time": null,
+  "energy": 0,
+  "status": "Charging",
+  "transactionid": "5111967",
+  "connector_id": "a16f31c3-50f9-45bb-87c8-31c65f4dc4cf",
+  "vehicle_id": "ca22f8e2-8a91-487d-8701-d185a6dd7a7e",
+  "user_id": "1a47b844-3223-4e66-b9a6-1663079aced0",
+  "evse_id": "c19e2f02-6455-49ff-a071-fc68fa209707",
+  "charge_point_id": "58a8a4d2-5683-4fd5-af3d-7cb7eb6ca4dc"
+}
 ```
+To stop a charging session, you need the id of the transaction. In the example above, the id is ```b57979ba-c071-4dbf-8fb6-233f174e8d6f ```
 
+```python
+headers = {
+    "accept": "application/json",
+    "Authorization": "Bearer **insert token from step 1 here**",
+    "Content-Type": "application/json",
+}
 
+json_data = {"transaction_id": "b57979ba-c071-4dbf-8fb6-233f174e8d6f" }
+
+stop_url = "localhost:8000/twin/charge-point/action/stop-transaction"
+response = requests.post(stop_url, headers=headers, json=json_data)
+```
 
 #### Further examples
 You can check out the jupyter notebook found under [here](notebooks/quick_start_api.ipynb).
