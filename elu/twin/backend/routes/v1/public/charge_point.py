@@ -167,6 +167,7 @@ def _add_charge_point(
         maximum_ac_power=charge_point.maximum_ac_power,
         quota_id=quota_id,
         token_cost_per_minute=len(charge_point.evses) * get_token_price(),
+        ocpp_protocol=charge_point.ocpp_protocol,
     )
     session.add(db_charge_point)
     session.commit()
