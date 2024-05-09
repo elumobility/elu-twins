@@ -162,18 +162,6 @@ class ChargePointConsumer:
             else:
                 logger.warning(f"unknown action: {obj}")
 
-    def get_processes(self) -> list[Coroutine]:
-        """
-
-        :return:
-        """
-        return [
-            self.start(),
-            self.send_boot_notification(),
-            self.process_actions(),
-            self.consume_actions_redis(REDIS_HOSTNAME, f"actions-{self.cpi.id}"),
-        ]
-
     @logger.catch
     async def consume_actions_redis(self, channel: str):
         """

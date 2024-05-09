@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Coroutine
 
 from ocpp.v201 import ChargePoint as Cp, call, enums
 from ocpp.v201 import call_result
@@ -24,10 +25,13 @@ from elu.twin.charge_point import requests
 from elu.twin.charge_point.charge_point.charge_point_consumer import (
     ChargePointConsumer,
 )
+from elu.twin.charge_point.charge_point.helpers import update_evse_and_connectors
+from elu.twin.charge_point.env import REDIS_HOSTNAME
 from elu.twin.data.helpers import get_now
 from elu.twin.charge_point.generator import generate_protocol
 
 from ocpp.v16.enums import ChargePointStatus as Cps
+from loguru import logger
 
 
 class ChargePointBase(Cp, ChargePointConsumer):
@@ -48,14 +52,26 @@ class ChargePoint(ChargePointBase):
     async def get_send_boot_notification(
         self, **kwargs
     ) -> call.BootNotificationPayload:
-        await requests.update_charger_status(
-            self.cpi.user_id, self.cpi.cid, Cps.connected
-        )
+        await requests.update_charger_status(self.cpi.cid, Cps.available)
 
         return call.BootNotificationPayload(
             charging_station={"model": self.cpi.model, "vendor_name": self.cpi.vendor},
             reason=self.cpi.boot_reason,
         )
+
+    async def send_status_notification(self, **kwargs):
+        request = call.BootNotificationPayload(**kwargs)
+        logger.warning(f"hi we get here: {request} ")
+        await update_evse_and_connectors(self.cpi)
+
+        for evse in self.cpi.evses:
+            for connector in evse.connectors:
+                call.StatusNotificationPayload(
+                    timestamp=str(datetime.now(timezone.utc)),
+                    connector_status=connector.status,
+                    evse_id=evse.evseid,
+                    connector_id=connector.connectorid,
+                )
 
     def generate_transaction_id(self, evse_id: int, connector_id: int):
         return f"{evse_id}-{connector_id}-{str(datetime.now().timestamp()).replace('.', '-')}"
@@ -141,3 +157,15 @@ class ChargePoint(ChargePointBase):
         )
 
         await self.send_transaction_event(**asdict(stop))
+
+    def get_processes(self) -> list[Coroutine]:
+        """
+
+        :return:
+        """
+        return [
+            self.start(),
+            self.send_boot_notification(),
+            self.process_actions(),
+            self.consume_actions_redis(REDIS_HOSTNAME, f"actions-{self.cpi.id}"),
+        ]
