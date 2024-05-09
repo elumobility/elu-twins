@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from ocpp.v16.enums import ChargePointStatus
 from sqlmodel import Session, select
-
+from elu.twin.data.enums import Protocol
 from elu.twin.backend.crud.user import get_current_active_user
 from elu.twin.backend.db.database import get_session
 from elu.twin.backend.routes.v1.common.charge_point_actions import (
@@ -69,6 +69,8 @@ def connect_charger(
         .where(ChargePoint.id == connect_charge_point.charge_point_id)
         .where(ChargePoint.user_id == current_user.id)
     ).first()
+    if charge_point.ocpp_protocol == Protocol.v201:
+        charge_point.boot_reason = connect_charge_point.boot_reason
     if charge_point:
         if charge_point.csms_url is None:
             raise HTTPException(
