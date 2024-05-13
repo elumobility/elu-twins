@@ -84,6 +84,27 @@ token_url = 'http://localhost:8000/token'
 response = requests.post(token_url, headers=headers, data=data)
 token = response.json().get("access_token")
 ```
+
+You can use the user token to generate an app token where you can define when the app token expires. To create an app token, you can do the following:
+```python
+import requests
+
+headers = {
+    "accept": "application/json",
+    "Authorization": "Bearer **insert token from step 1 here**",
+    "Content-Type": "application/json",
+}
+
+data = {"name": "test", "expiry_in_days": 3}
+    
+response = requests.post(app_token_url, headers=headers, json=data)
+if response.status_code == 200:
+    print("token generated")
+    token = response.json().get("access_token")
+else:
+    print(response.text)
+```
+
 **The token has to be added to the header for any calls to the API as shown in the examples below.**
 
 #### Step 2 - How to create a vehicles and charge points
