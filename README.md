@@ -16,13 +16,11 @@ ELU Twins emulate devices related with electro mobility. With this project, it i
 
 ### OCPP 1.6
 
-- Core (Done)
-- Firmware Management (Done)
+- Core (Semi Done)
+- Firmware Management Semi Done)
 - Local Auth List Management (Done)
-- Reservation (Not Done)
-- Smart Charging (Semi Done)
-- Remote Trigger (Done)
-- 
+- Reservation (Done)
+- Remote Trigger (Semi Done)
 
 ### OCPP 2.0.1
 
@@ -296,7 +294,8 @@ You can check out the jupyter notebook found under [here](notebooks/quick_start_
 
 ## Next steps
 - Increase coverage
-
+- Additional OCPP 1.6 and 2.0.1 features
+  
 ## How to contribute
 
 We welcome contributions from everyone who is willing to improve this project. Whether you're fixing bugs, adding new features, improving documentation, or suggesting new ideas, your help is greatly appreciated! Just make sure you follow these simple guidelines before opening up a PR:
