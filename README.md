@@ -9,7 +9,7 @@ This is the open-source version of our product: ELU Twins. The goal is to allow 
 easier testing and demoing for e-mobility software such as a charge management system. 
 
 ## Disclaimar
-We decide to open-source our project to allow our customers to run it locally. Our **main** priority is on releasing new features and not on making it stable. This means that you may encounter issues and bugs. 
+We decide to open-source our project to allow our customers to run it locally. Our **main** priority is on releasing new features and not on making it stable. This means that you may encounter issues and bugs. The project also inludes a CSMS for OCPP 1.6 and OCPP 2.0.1 that are used for testing the digital twins. We provide no gurantee on the CSMS' working correctly.
 
 # Description
 ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
@@ -48,8 +48,8 @@ After docker-compose is executed, the following services will be started:
 2. Private API: this API exposes internal actions, see interactive documentation [here](http://127.0.0.1:8800/docs)
 3. Charge point flower: (http://localhost:5555/) - Simulated Charge Points using OCPP and Celery to manage clusters, see [here](https://flower.readthedocs.io/en/latest/) for more information
 4. Charge point celery: Simulated charge point using OCPP, using Celery, see [here](https://docs.celeryq.dev/en/stable/#)
-5. Csmsv2: CSMS for OCPP 2.0.1
-6. csmsv16: CSMS for OCPP 1.6
+5. Csmsv2: CSMS for OCPP 2.0.1 used for testing
+6. csmsv16: CSMS for OCPP 1.6 used for testing
 7. Redis:
 8. DB: postgres
 
