@@ -1,5 +1,5 @@
 from elu.twin.data.schemas.charge_point import OutputChargePoint as Cpi
-import requests
+from elu.twin.charge_point import requests
 from elu.twin.data.enums import (
     EvseStatus,
     ConnectorStatus,

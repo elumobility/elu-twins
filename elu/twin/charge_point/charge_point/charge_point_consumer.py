@@ -136,9 +136,11 @@ class ChargePointConsumer:
         """
         while True:
             obj = await self.actions_queue.get()
+            logger.warning(f"debug: {obj}")
             if isinstance(obj, RedisRequestStartTransaction):
                 start_transaction: RedisRequestStartTransaction = obj
                 self.actions_queue.task_done()
+                logger.warning(f"dick: {start_transaction.dict()}")
                 task = asyncio.create_task(
                     self.start_transaction(**start_transaction.dict())
                 )
