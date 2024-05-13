@@ -15,7 +15,7 @@ except ModuleNotFoundError:
 
     sys.exit(1)
 
-from ocpp.routing import on
+from ocpp.routing import on, after
 from ocpp.v201 import ChargePoint as Cp
 from ocpp.v201 import call_result
 
@@ -38,9 +38,19 @@ class ChargePoint(Cp):
             status=RegistrationStatusType.accepted,
         )
 
+    @on(Action.StatusNotification)
+    def on_status_notification(self, timestamp, connector, evse_id, connector_id):
+        return call_result.StatusNotificationPayload()
+
     @on(Action.Heartbeat)
     def on_heartbeat(self):
         return call_result.HeartbeatPayload(current_time=get_now())
+
+    @on(Action.TransactionEvent)
+    def on_transaction_event(
+        self, event_type, trigger_reason, transaction_info, **kwargs
+    ):
+        return call_result.TransactionEventPayload()
 
 
 async def on_connect(websocket, path):

@@ -1,4 +1,5 @@
 """protocols generator"""
+
 from dataclasses import asdict
 import re
 import logging
@@ -55,6 +56,31 @@ def generate_protocol(base: object, actions: object, call: object, call_result: 
             base, f"get_send_{camel_to_snake(action)}", generate_get_send_action(action)
         )
 
+        def generate_get_after_action(_action: str):
+            """
+
+            :param _action:
+            :return:
+            """
+
+            async def get_after_action(self, response):
+                # Todo: fix types
+                """
+
+                :param self:
+                :param kwargs:
+                :return:
+                """
+                return response
+
+            return get_after_action
+
+        setattr(
+            base,
+            f"get_after_{camel_to_snake(action)}",
+            generate_get_after_action(action),
+        )
+
         def generate_send_action(_action: str):
             """
 
@@ -73,8 +99,13 @@ def generate_protocol(base: object, actions: object, call: object, call_result: 
                     **kwargs
                 )
                 request = getattr(call, f"{_action}Payload")(**asdict(obj))
+
                 response = await self.call(request)
-                return response
+
+                final_response = await getattr(
+                    self, f"get_after_{camel_to_snake(_action)}"
+                )(response=response)
+                return final_response
 
             return send_action
 
