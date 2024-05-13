@@ -5,15 +5,15 @@
 <img src="https://img.shields.io/badge/release-v1.0-blue"/>
 
 # ELU Twins 
-This is the open-source version of our product: ELU Twins. The goal is to allow users to simulate charging sessions and driving behavior enabling
-easier testing and demoing for e-mobility software such as a charge management system. 
+This is the open-source version of our product, ELU Twins. Its purpose is to simulate various components within the e-mobility ecosystem and their interactions, including EV charging. This enables easier testing and demonstration of e-mobility software, such as charge management systems.
 
-## Disclaimar
+## Disclaimer
 We decide to open-source our project to allow our customers to run it locally. Our **main** priority is on releasing new features and not on making it stable. This means that you may encounter issues and bugs. The project also inludes a CSMS for OCPP 1.6 and OCPP 2.0.1 that are used for testing the digital twins. We provide no gurantee on the CSMS' working correctly.
 
 # Description
-ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual chargers (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
+ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual charge points (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
 
+# OCPP
 ### OCPP 1.6
 
 - Core (Semi Done)
@@ -86,7 +86,7 @@ token = response.json().get("access_token")
 ```
 **The token has to be added to the header for any calls to the API as shown in the examples below.**
 
-#### Step 2 - How to create a vehicles and chargers
+#### Step 2 - How to create a vehicles and charge points
 ##### create vehicles
 ```python
 import requests 
@@ -120,7 +120,7 @@ If successful, the returned response is
  'transaction_id': None}
 ```
 
-##### create chargers
+##### create charge points
 ```python
 import requests 
 
@@ -223,7 +223,7 @@ If successful, the returned response is
  'user_id': '52ca0620-a51a-4233-bd16-4250b163ca06'}
 ```
 
-#### Step 3 - Connect chargers and start charging sessions
+#### Step 3 - Connect charge points and start charging sessions
 
 To connect a charger, you need the id of the charger you want to connect. In step 2, in the returned object of creating a charger, we get the id. In the example above the id is 425d8189-746c-4295-a57d-8ed1e89ccc75. To connect a charger, we do the following:  
 ```python
