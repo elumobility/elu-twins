@@ -19,9 +19,9 @@ These are the OCPP operations supported for now.
 ### OCPP 1.6
 
 | **Initiatied by** |       **Operation**      | **Status** |             **Comments**             |
-|:-----------------:|:------------------------:|:----------:|:------------------------------------:|
+|:-----------------:|:---------------------------:|:----------:|:------------------------------------:|
 | Charge point      | Boot notification        |      ✅       |                                      |
-| Charge point      | Meter values             |      ✅       | Only some meter values are supported |
+| Charge point      | Status notification      |      ✅       | Only some meter values are supported |
 | Charge point      | Start transaction        |      ✅       |                                      |
 | Charge point      | Stop transaction         |      ✅       |                                      |
 | Charge point      | Status notification      |      ✅       |                                      |
@@ -37,24 +37,18 @@ These are the OCPP operations supported for now.
 | Central system    | Change Configuration     |      🛠️       | Under development                    |
 
 
-### OCPP 2.0.1 - to do
+### OCPP 2.0.1
 
-| **Initiatied by** |       **Operation**      | **Status** |             **Comments**             |
-|:-----------------:|:------------------------:|:----------:|:------------------------------------:|
-| Charge point      | Boot notification        |     [x]    |                                      |
-| Charge point      | Meter values             |     [x]    | Only some meter values are supported |
-| Charge point      | Start transaction        |     [x]    |                                      |
-| Charge point      | Stop transaction         |     [x]    |                                      |
-| Charge point      | Status notification      |     [x]    |                                      |
-| Charge point      | Authorize                |            | Under development                    |
-| Charge point      | Heartbeat                |     [x]    |                                      |
-| Central system    | Remote start transaction |     [x]    |                                      |
-| Central system    | Remote stop transaction  |     [x]    |                                      |
-| Central system    | Reserve now              |            | Under development                    |
-| Central system    | Set Charging Profile     |            | Under development                    |
-| Central system    | Get Composite Schedule   |            | Under development                    |
-| Central system    | Get Configuration        |            | Under development                    |
-| Central system    | Change Configuration     |            | Under development                    |
+| **Initiatied by** | **Operation**                | **Status** |       **Comments**      |
+|:-----------------:|------------------------------|:----------:|:-----------------------:|
+| Charge point      | Boot notification request    |      ✅    |                         |
+| Charge point      | Status notification request  |      ✅    |                         |
+| Charge point      | Heartbeat request            |      ✅    |                         |
+| Charge point      | Transaction event request    |      ✅    | start/stop/meter values |
+| Central system    | Status notification response |      ✅    |                         |
+| Central system    | Boot notification response   |      ✅    |                         |
+| Central system    | Heartbeat response           |      ✅    |                         |
+| Central system    | Transaction event response   |      ✅    |                         |
 
 - Currently under development, the OCPP 2.0.1 version is not yet fully implemented, but we're working on it.
 
