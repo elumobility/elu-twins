@@ -17,7 +17,7 @@ ELU Twins emulates devices related to electromobility. With this project, it is 
 ### OCPP 1.6
 
 - Core (Semi Done)
-- Firmware Management Semi Done)
+- Firmware Management (Semi Done)
 - Local Auth List Management (Done)
 - Reservation (Done)
 - Remote Trigger (Semi Done)
@@ -29,9 +29,9 @@ ELU Twins emulates devices related to electromobility. With this project, it is 
 ### Install and build
 
 #### Pre-requisites
-The project can be be built using ether docker or natively.
+The project can be be built using docker.
 
-#### With Docker
+#### Docker
 
 Docker must be installed. We suggest building and running this project using Docker. This can be done as follows:
 
