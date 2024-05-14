@@ -10,10 +10,10 @@ This is the open-source version of our product, ELU Twins. Its purpose is to sim
 ## Disclaimer
 We have decided to open-source our project to allow our customers to run it locally. Our main priority is on releasing new features, not on ensuring stability. This means that you may encounter issues and bugs. The project also includes a CSMS for OCPP 1.6 and OCPP 2.0.1 that are used for testing the digital twins. We provide no guarantee that the CSMS will work correctly.
 
-# Description
+## Description
 ELU Twins emulates devices related to electromobility. With this project, it is possible to create virtual charge points (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
 
-# OCPP
+## OCPP
 These are the OCPP operations supported for now.
 
 ### OCPP 1.6
