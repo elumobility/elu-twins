@@ -24,13 +24,13 @@ from elu.twin.backend.security.security import (
     get_password_hash,
 )
 
-router = APIRouter(prefix="", tags=["Token"], include_in_schema=False)
+router = APIRouter(prefix="", tags=["Token"], include_in_schema=True)
 
 
 @router.post("/token", response_model=Token)
 @logger.catch
 async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ):
     print("form_data: ", form_data)
     user = authenticate_user(form_data.username, form_data.password)
@@ -135,3 +135,6 @@ async def delete_app_token(
     session.delete(token)
     session.commit()
     return token
+
+
+data = {"name": "test", "expiry_in_days": 3}
