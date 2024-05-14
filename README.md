@@ -86,7 +86,7 @@ After docker-compose is executed, the following services will be started:
 
 ### Examples of how to use the API
 
-#### Step 1 - How to create a user and token
+#### Step 1 - How to create a user
 
 First create a user. All charge points and vehicles will then belong to that user.
 
@@ -105,17 +105,13 @@ create_user_url = 'http://localhost:8800/user/'
 response = requests.post(create_user_url, headers=headers, json=json_data)
 ```
 
-#### Step 2 Create user and app token
+#### Step 2 Create user token and app token
+
+First create a user token
 
 ```python
-data = {
-    'grant_type': '',
-    'username': user,
-    'password': password,
-    'scope': '',
-    'client_id': '',
-    'client_secret': '',
-}
+data = { 'username': user, 'password': password  }
+
 token_url = 'http://localhost:8000/token'
 
 response = requests.post(token_url, headers=headers, data=data)
