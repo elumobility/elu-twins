@@ -8,10 +8,10 @@
 This is the open-source version of our product, ELU Twins. Its purpose is to simulate various components within the e-mobility ecosystem and their interactions, including EV charging. This enables easier testing and demonstration of e-mobility software, such as charge management systems.
 
 ## Disclaimer
-We decide to open-source our project to allow our customers to run it locally. Our **main** priority is on releasing new features and not on making it stable. This means that you may encounter issues and bugs. The project also inludes a CSMS for OCPP 1.6 and OCPP 2.0.1 that are used for testing the digital twins. We provide no gurantee on the CSMS' working correctly.
+We have decided to open-source our project to allow our customers to run it locally. Our main priority is on releasing new features, not on ensuring stability. This means that you may encounter issues and bugs. The project also includes a CSMS for OCPP 1.6 and OCPP 2.0.1 that are used for testing the digital twins. We provide no guarantee that the CSMS will work correctly.
 
 # Description
-ELU Twins emulate devices related with electro mobility. With this project, it is possible to create virtual charge points (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
+ELU Twins emulates devices related to electromobility. With this project, it is possible to create virtual charge points (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
 
 # OCPP
 ### OCPP 1.6
@@ -33,8 +33,7 @@ The project can be be built using ether docker or natively.
 
 #### With Docker
 
-Docker must be installed.
-We suggest to build and run this project using docker, this can be done as follows:
+Docker must be installed. We suggest building and running this project using Docker. This can be done as follows:
 
 ```shell
 docker-compose up --build 
@@ -45,7 +44,7 @@ After docker-compose is executed, the following services will be started:
 1. Public API: this API expose user interactions, see interactive documentation [here](http://127.0.0.1:8000/docs)
 2. Private API: this API exposes internal actions, see interactive documentation [here](http://127.0.0.1:8800/docs)
 3. Charge point flower: (http://localhost:5555/) - Simulated Charge Points using OCPP and Celery to manage clusters, see [here](https://flower.readthedocs.io/en/latest/) for more information
-4. Charge point celery: Simulated charge point using OCPP, using Celery, see [here](https://docs.celeryq.dev/en/stable/#)
+4. Charge point celery: Simulated charge points using OCPP and Celery, see [here](https://docs.celeryq.dev/en/stable/#)
 5. Csmsv2: CSMS for OCPP 2.0.1 used for testing
 6. csmsv16: CSMS for OCPP 1.6 used for testing
 7. Redis:
@@ -86,6 +85,7 @@ token = response.json().get("access_token")
 ```
 
 You can use the user token to generate an app token where you can define when the app token expires. To create an app token, you can do the following:
+
 ```python
 import requests
 
@@ -246,7 +246,7 @@ If successful, the returned response is
 
 #### Step 3 - Connect charge points and start charging sessions
 
-To connect a charger, you need the id of the charger you want to connect. In step 2, in the returned object of creating a charger, we get the id. In the example above the id is 425d8189-746c-4295-a57d-8ed1e89ccc75. To connect a charger, we do the following:  
+To connect a charger, you need the ID of the charger you want to connect. In Step 2, in the returned object of creating a charger, we get the ID. In the example above, the ID is ```425d8189-746c-4295-a57d-8ed1e89ccc75```. To connect a charger, we do the following:
 ```python
 
 headers = {
@@ -259,7 +259,7 @@ json_data = { "charge_point_id": '425d8189-746c-4295-a57d-8ed1e89ccc75'}
 response = requests.post(url="localhost:8000/twin/charge-point/action/connect-charger", headers=headers, json=json_data)
 ```
 
-Now the charger is available for charging and you can start charging sessions. To start a charging session, you need the id of the connector and the id of the vehicle you want to start charging.
+Now the charger is available for charging and you can start charging sessions. To start a charging session, you need the ID of the connector and the ID of the vehicle you want to start charging.
 
 ```python
 headers = {
@@ -294,7 +294,9 @@ If successful, a transaction object is returned
   "charge_point_id": "58a8a4d2-5683-4fd5-af3d-7cb7eb6ca4dc"
 }
 ```
-To stop a charging session, you need the id of the transaction. In the example above, the id is ```b57979ba-c071-4dbf-8fb6-233f174e8d6f ```
+If successful, a transaction object is returned.
+
+To stop a charging session, you need the ID of the transaction. In the example above, the ID is ```b57979ba-c071-4dbf-8fb6-233f174e8d6f ```
 
 ```python
 headers = {
@@ -312,15 +314,13 @@ response = requests.post(stop_url, headers=headers, json=json_data)
 #### Further examples
 You can check out the jupyter notebook found under [here](notebooks/quick_start_api.ipynb).
 
-
 ## Next steps
 - Increase coverage
 - Additional OCPP 1.6 and 2.0.1 features
   
 ## How to contribute
-
 We welcome contributions from everyone who is willing to improve this project. Whether you're fixing bugs, adding new features, improving documentation, or suggesting new ideas, your help is greatly appreciated! Just make sure you follow these simple guidelines before opening up a PR:
-- Follow the [Code of Conduct](CODE_OF_CONDUCT.md): Always adhere to the Code of Conduct and be respectful of others in the community.
-- Test Your Changes: Ensure your code is tested and as bug-free as possible.
-- Update Documentation: If you're adding new features or making changes that require it, update the documentation accordingly.
 
+1. Follow the [Code of Conduct](CODE_OF_CONDUCT.md): Always adhere to the Code of Conduct and be respectful of others in the community.
+2. Test Your Changes: Ensure your code is tested and as bug-free as possible.
+3. Update Documentation: If you're adding new features or making changes that require it, update the documentation accordingly.
