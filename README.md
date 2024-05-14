@@ -2,7 +2,7 @@
   <img src="./docs/icons/elu_charger-transformed.png" alt="Logo" width="300">
 </p>
 
-<img src="https://img.shields.io/badge/release-v1.0-blue"/>
+<img src="https://img.shields.io/badge/release-v0.1.0-blue"/>
 
 # ELU Twins 
 This is the open-source version of our product, ELU Twins. Its purpose is to simulate various components within the e-mobility ecosystem and their interactions, including EV charging. This enables easier testing and demonstration of e-mobility software, such as charge management systems.
