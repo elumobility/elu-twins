@@ -26,7 +26,7 @@ These are the OCPP operations supported for now.
 | Charge point      | Stop transaction         |      ✅       |                                      |
 | Charge point      | Status notification      |      ✅       |                                      |
 | Charge point      | Heartbeat                |      ✅       |                                      |
-| Charge point      | Authorize                |      ✅       | Under development                    |
+| Charge point      | Authorize                |      🛠️       | Under development                    |
 | Charge point      | Heartbeat                |      ✅       |                                      |
 | Central system    | Remote start transaction |      ✅       |                                      |
 | Central system    | Remote stop transaction  |      ✅       |                                      |
