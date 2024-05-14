@@ -14,24 +14,63 @@ We have decided to open-source our project to allow our customers to run it loca
 ELU Twins emulates devices related to electromobility. With this project, it is possible to create virtual charge points (OCPP) and vehicles in seconds. Below is an overview of what has been implemented in the project so far.
 
 # OCPP
+These are the OCPP operations supported for now.
+
 ### OCPP 1.6
 
-- Core (Semi Done)
-- Firmware Management (Semi Done)
-- Local Auth List Management (Done)
-- Reservation (Done)
-- Remote Trigger (Semi Done)
+| **Initiatied by** |       **Operation**      | **Status** |             **Comments**             |
+|:-----------------:|:------------------------:|:----------:|:------------------------------------:|
+| Charge point      | Boot notification        |     [x]    |                                      |
+| Charge point      | Meter values             |     [x]    | Only some meter values are supported |
+| Charge point      | Start transaction        |     [x]    |                                      |
+| Charge point      | Stop transaction         |     [x]    |                                      |
+| Charge point      | Status notification      |     [x]    |                                      |
+| Charge point      | Authorize                |            | Under development                    |
+| Charge point      | Heartbeat                |     [x]    |                                      |
+| Central system    | Remote start transaction |     [x]    |                                      |
+| Central system    | Remote stop transaction  |     [x]    |                                      |
+| Central system    | Reserve now              |            | Under development                    |
+| Central system    | Set Charging Profile     |            | Under development                    |
+| Central system    | Get Composite Schedule   |            | Under development                    |
+| Central system    | Get Configuration        |            | Under development                    |
+| Central system    | Change Configuration     |            | Under development                    |
 
-### OCPP 2.0.1
+
+### OCPP 2.0.1 - to do
+
+| **Initiatied by** |       **Operation**      | **Status** |             **Comments**             |
+|:-----------------:|:------------------------:|:----------:|:------------------------------------:|
+| Charge point      | Boot notification        |     [x]    |                                      |
+| Charge point      | Meter values             |     [x]    | Only some meter values are supported |
+| Charge point      | Start transaction        |     [x]    |                                      |
+| Charge point      | Stop transaction         |     [x]    |                                      |
+| Charge point      | Status notification      |     [x]    |                                      |
+| Charge point      | Authorize                |            | Under development                    |
+| Charge point      | Heartbeat                |     [x]    |                                      |
+| Central system    | Remote start transaction |     [x]    |                                      |
+| Central system    | Remote stop transaction  |     [x]    |                                      |
+| Central system    | Reserve now              |            | Under development                    |
+| Central system    | Set Charging Profile     |            | Under development                    |
+| Central system    | Get Composite Schedule   |            | Under development                    |
+| Central system    | Get Configuration        |            | Under development                    |
+| Central system    | Change Configuration     |            | Under development                    |
 
 - Currently under development, the OCPP 2.0.1 version is not yet fully implemented, but we're working on it.
 
-### Install and build
+## Vehicle telemetry
 
-#### Pre-requisites
-The project can be be built using docker.
+|        **Operation**       | **Status** |             **Comments**             |
+|:--------------------------:|:----------:|:------------------------------------:|
+| Get power from current SoC |     [x]    | Used to build charging curves        |
+| Update vehicle status      |     [x]    | Only some meter values are supported |
+| Update current SoC         |     [x]    |                                      |
 
-#### Docker
+## How to use
+
+### Set up docker configuration
+Check and set .docker.env file
+
+### Start docker services
 
 Docker must be installed. We suggest building and running this project using Docker. This can be done as follows:
 
@@ -41,18 +80,20 @@ docker-compose up --build
 
 ### What is running with docker-compose
 After docker-compose is executed, the following services will be started:
-1. Public API: this API expose user interactions, see interactive documentation [here](http://127.0.0.1:8000/docs)
-2. Private API: this API exposes internal actions, see interactive documentation [here](http://127.0.0.1:8800/docs)
-3. Charge point flower: (http://localhost:5555/) - Simulated Charge Points using OCPP and Celery to manage clusters, see [here](https://flower.readthedocs.io/en/latest/) for more information
-4. Charge point celery: Simulated charge points using OCPP and Celery, see [here](https://docs.celeryq.dev/en/stable/#)
-5. Csmsv2: CSMS for OCPP 2.0.1 used for testing
-6. csmsv16: CSMS for OCPP 1.6 used for testing
-7. Redis:
-8. DB: postgres
+1. **Public API**: this API expose user interactions, see interactive documentation [here](http://127.0.0.1:8000/docs)
+2. **Private API**: this API exposes internal actions, see interactive documentation [here](http://127.0.0.1:8800/docs)
+3. **celery**: charge point orchestrator for simulating multiple charge points, see [here](https://docs.celeryq.dev/en/stable/#)
+4. **flower**: (http://localhost:5555/) - Frontend for celery, see [here](https://flower.readthedocs.io/en/latest/) for more information
+5. **Csmsv2**: CSMS for OCPP 2.0.1 used for testing
+6. **csmsv16**: CSMS for OCPP 1.6 used for testing
+7. **Redis**: Enabling communcation between user and charge points
+8. **DB**: Postgres database to store states
 
 ### Examples of how to use the API
 
 #### Step 1 - How to create a user and token
+
+First create a user. All charge points and vehicles will then belong to that user.
 
 ```python
 import requests
@@ -67,9 +108,11 @@ json_data = {'username': user,'password': password }
 
 create_user_url = 'http://localhost:8800/user/'
 response = requests.post(create_user_url, headers=headers, json=json_data)
+```
 
-# create token
+#### Step 2 Create user and app token
 
+```python
 data = {
     'grant_type': '',
     'username': user,
@@ -107,8 +150,9 @@ else:
 
 **The token has to be added to the header for any calls to the API as shown in the examples below.**
 
-#### Step 2 - How to create a vehicles and charge points
-##### create vehicles
+#### Step 3 - How to create assets
+
+##### Create a vehicle
 ```python
 import requests 
 
@@ -119,7 +163,7 @@ headers = {
 }
 # create vehicle
 
-json_data = {"name": "BMW I3", "battery_capacity": 65, "maximum_charging_rate": 50}
+json_data = {"name": "ELU vehicle one", "battery_capacity": 65, "maximum_charging_rate": 50}
 
 vehicle_url = "http://localhost:8000/twin/vehicle/"
 
@@ -130,7 +174,7 @@ If successful, the returned response is
 ```javascript
 {'created_at': '2024-05-06T06:30:56.568111',
  'updated_at': '2024-05-06T06:30:56.568177',
- 'name': 'BMW I3',
+ 'name': 'ELU vehicle one',
  'id_tag_suffix': 'NEAKPLTYIK',
  'battery_capacity': 65,
  'maximum_dc_charging_rate': 50,
@@ -141,7 +185,8 @@ If successful, the returned response is
  'transaction_id': None}
 ```
 
-##### create charge points
+##### Create a charge point
+
 ```python
 import requests 
 
@@ -152,10 +197,11 @@ headers = {
 }
 
 json_data = {
-    "name": "Charger 1",
+    "name": "ELU Charger 1",
     "maximum_dc_power": 180,
     "maximum_ac_power": 20,
-    "csms_url": "ws://csms:9000",
+    "ocpp_protocol": "ocpp1.6",
+    "csms_url": "ws://csmsv16:9000", # Add your own csms url if needed
     "evses": [
         {"connectors": [{"connector_type": "cCCS1"}]},
         {"connectors": [{"connector_type": "cCCS1"}]},
@@ -168,7 +214,7 @@ response = requests.post(charger, headers=headers, json=json_data)
 ```
 If successful, the returned response is 
 ```javascript
-{'name': 'Charger 1',
+{'name': 'ELU Charger 1',
  'cid': 'ELU-WIU4-KNKTT-821XH28NUWB',
  'vendor': 'Elu Twin',
  'model': 'Digital Twin',
@@ -244,7 +290,7 @@ If successful, the returned response is
  'user_id': '52ca0620-a51a-4233-bd16-4250b163ca06'}
 ```
 
-#### Step 3 - Connect charge points and start charging sessions
+#### Step 4 - Connect a charge point to a CSMS
 
 To connect a charger, you need the ID of the charger you want to connect. In Step 2, in the returned object of creating a charger, we get the ID. In the example above, the ID is ```425d8189-746c-4295-a57d-8ed1e89ccc75```. To connect a charger, we do the following:
 ```python
@@ -258,6 +304,8 @@ json_data = { "charge_point_id": '425d8189-746c-4295-a57d-8ed1e89ccc75'}
             
 response = requests.post(url="localhost:8000/twin/charge-point/action/connect-charger", headers=headers, json=json_data)
 ```
+
+#### Step 5 - Start a charging session
 
 Now the charger is available for charging and you can start charging sessions. To start a charging session, you need the ID of the connector and the ID of the vehicle you want to start charging.
 
@@ -294,7 +342,8 @@ If successful, a transaction object is returned
   "charge_point_id": "58a8a4d2-5683-4fd5-af3d-7cb7eb6ca4dc"
 }
 ```
-If successful, a transaction object is returned.
+
+#### Step 6 - Stop a charging session
 
 To stop a charging session, you need the ID of the transaction. In the example above, the ID is ```b57979ba-c071-4dbf-8fb6-233f174e8d6f ```
 
@@ -315,8 +364,8 @@ response = requests.post(stop_url, headers=headers, json=json_data)
 You can check out the jupyter notebook found under [here](notebooks/quick_start_api.ipynb).
 
 ## Next steps
-- Increase coverage
-- Additional OCPP 1.6 and 2.0.1 features
+- Improve test coverage
+- Incorporate additional OCPP 1.6 and 2.0.1 operations
   
 ## How to contribute
 We welcome contributions from everyone who is willing to improve this project. Whether you're fixing bugs, adding new features, improving documentation, or suggesting new ideas, your help is greatly appreciated! Just make sure you follow these simple guidelines before opening up a PR:
