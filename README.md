@@ -20,7 +20,7 @@ These are the OCPP operations supported for now.
 
 | **Initiatied by** |       **Operation**      | **Status** |             **Comments**             |
 |:-----------------:|:------------------------:|:----------:|:------------------------------------:|
-| Charge point      | Boot notification        |     [x]    |                                      |
+| Charge point      | Boot notification        |:white_check_mark |                                      |
 | Charge point      | Meter values             |     [x]    | Only some meter values are supported |
 | Charge point      | Start transaction        |     [x]    |                                      |
 | Charge point      | Stop transaction         |     [x]    |                                      |
