@@ -285,6 +285,7 @@ class ChargePoint(ChargePointBase):
         )
 
     async def get_on_get_configuration(self, **kwargs):
+        print("hi")
         request = call.GetConfigurationPayload(**kwargs)
         keys, unknown_keys = self.ocpp_configuration.get_list_of_keys(request.key)
         return call_result.GetConfigurationPayload(
