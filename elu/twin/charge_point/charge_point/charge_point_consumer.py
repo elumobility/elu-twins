@@ -154,13 +154,13 @@ class ChargePointConsumer:
                 )
                 self.actions_set.add(task)
                 task.add_done_callback(self.actions_set.discard)
-            #            elif isinstance(obj, Disconnect):
-            #                self.actions_queue.task_done()
-            #                task = asyncio.create_task(
-            #                    self.connect_disconnect(mode=ChargePointStatus.unavailable)
-            #                )
-            #                self.actions_set.add(task)
-            #                task.add_done_callback(self.actions_set.discard)
+            elif isinstance(obj, Redis):
+                self.actions_queue.task_done()
+                task = asyncio.create_task(
+                    self.connect_disconnect(mode=ChargePointStatus.unavailable)
+                )
+                self.actions_set.add(task)
+                task.add_done_callback(self.actions_set.discard)
             else:
                 logger.warning(f"unknown action: {obj}")
 
