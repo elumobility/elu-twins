@@ -12,6 +12,8 @@ from elu.twin.data.schemas.transaction import (
     RequestStopTransaction,
     RedisRequestStopTransaction,
 )
+from ocpp.v16 import call
+
 from elu.twin.data.tables import User, Connector, Vehicle, Transaction
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
@@ -113,6 +115,23 @@ def _stop_charging(
             TransactionStatus.running,
         ]:
             r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ACTIONS)
+            redis_stop_transaction = RedisRequestStopTransaction(
+                transaction_id=transaction.id
+            )
+            r.publish(
+                f"actions-{transaction.charge_point_id}",
+                redis_stop_transaction.model_dump_json(),
+            )
+            return ActionMessageRequest(
+                message="Stop transaction sent to requested connector"
+            )
+        raise HTTPException(status_code=400, detail="Connector not charging")
+    raise HTTPException(status_code=400, detail="Transaction not found")
+
+def _set_charging_profile(session: Session,
+   charge_profile_request: call.SetChargingProfilePayload,
+    current_user: User):
+     r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ACTIONS)
             redis_stop_transaction = RedisRequestStopTransaction(
                 transaction_id=transaction.id
             )

@@ -50,6 +50,12 @@ class VehicleStatus(StrEnum):
     pending = "pending"
 
 
+class ChargingProfileStatusv16(StrEnum):
+    accepted = "Accepted"
+    rejected = "Rejected"
+    not_supported = "NotSupported"
+
+
 def is_dc(connector_type: ConnectorType):
     """
 
