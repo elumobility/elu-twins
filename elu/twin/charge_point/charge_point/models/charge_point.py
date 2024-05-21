@@ -30,8 +30,8 @@ class Reservation(SQLModel):
 class AssignedChargingProfile(SQLModel):
     evse_id: int | None = Field(None)
     connector_id: int | None = Field(None)
-    connector_0: bool = Field(True)
-    charging_profile: ChargingProfile
+    # connector_0: bool = Field(True)
+    # charging_profile: ChargingProfile
 
 
 actions = {

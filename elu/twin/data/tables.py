@@ -2,6 +2,9 @@ from typing import Optional, List
 
 from sqlmodel import Field, Relationship
 
+from elu.twin.charge_point.charge_point.models.charge_point import (
+    AssignedChargingProfile,
+)
 from elu.twin.data.enums import (
     EvseStatus,
 )
@@ -42,6 +45,9 @@ class ChargePoint(ChargePointBase, OwnedByUser, table=True):
     ocpp_configuration_v16_id: Index | None = Field(
         default=None, foreign_key="ocppconfigurationv16.id"
     )
+    # charging_profiles: List["ChargingProfile"] = Relationship(
+    #     back_populates="charge_point"
+    # )
 
 
 class Evse(TableBase, table=True):
@@ -65,6 +71,10 @@ class Connector(BaseConnector, table=True):
 
 class Vehicle(VehicleBase, OwnedByUser, table=True):
     transaction_id: Index | None = Field(default=None, foreign_key="transaction.id")
+
+
+# class ChargingProfile(AssignedChargingProfile, table=True):
+#     id: int = Field(index=True)
 
 
 class Transaction(BaseTransaction, OwnedByUser, table=True):

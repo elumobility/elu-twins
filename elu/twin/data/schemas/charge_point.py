@@ -5,6 +5,9 @@ from ocpp.v16.enums import ChargePointStatus
 from ocpp.v201.enums import BootReasonType
 from sqlmodel import Field, SQLModel
 
+from elu.twin.charge_point.charge_point.models.charge_point import (
+    AssignedChargingProfile,
+)
 from elu.twin.data.schemas.common import Index, UpdateSchema
 from elu.twin.data.enums import Protocol
 from elu.twin.data.schemas.evse import InputEvse, OutputEvse
@@ -54,6 +57,8 @@ class OutputSimpleChargePoint(ChargePointBase):
 
 class OutputChargePoint(OutputSimpleChargePoint):
     evses: List[OutputEvse] = Field(default_factory=list)
+    charging_profiles: List[AssignedChargingProfile] = Field(default_factory=list)
+
     user_id: Index | None = Field(default=None)
 
 
