@@ -7,6 +7,7 @@ from elu.twin.data.enums import (
 )
 from elu.twin.data.schemas.actions import ActionMessageRequest
 from elu.twin.data.schemas.transaction import (
+    RedisRequestSetChargingProfile,
     RequestStartTransaction,
     RedisRequestStartTransaction,
     RequestStopTransaction,
@@ -19,6 +20,7 @@ from fastapi import HTTPException, status
 from sqlmodel import Session, select
 
 from elu.twin.backend.env import REDIS_HOSTNAME, REDIS_PORT, REDIS_DB_ACTIONS
+from ocpp.v16.datatypes import ChargingProfile
 
 
 def _post_request_start_charging(
@@ -128,19 +130,29 @@ def _stop_charging(
         raise HTTPException(status_code=400, detail="Connector not charging")
     raise HTTPException(status_code=400, detail="Transaction not found")
 
-def _set_charging_profile(session: Session,
-   charge_profile_request: call.SetChargingProfilePayload,
-    current_user: User):
-     r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ACTIONS)
-            redis_stop_transaction = RedisRequestStopTransaction(
-                transaction_id=transaction.id
-            )
+
+def _set_charging_profile(
+    session: Session,
+    charge_profile_request: ChargingProfile,
+    current_user: User,
+):
+    transaction = session.exec(
+        select(Transaction)
+        .where(Transaction.id == charge_profile_request.transaction_id)
+        .where(Transaction.user_id == current_user.id)
+    ).first()
+    if transaction:
+        if transaction.status in [
+            TransactionStatus.accepted,
+            TransactionStatus.running,
+        ]:
+            r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ACTIONS)
             r.publish(
                 f"actions-{transaction.charge_point_id}",
-                redis_stop_transaction.model_dump_json(),
+                charge_profile_request.model_dump_json(),
             )
             return ActionMessageRequest(
-                message="Stop transaction sent to requested connector"
+                message="Charging profile sent to requested connector"
             )
         raise HTTPException(status_code=400, detail="Connector not charging")
     raise HTTPException(status_code=400, detail="Transaction not found")

@@ -191,9 +191,15 @@ class ChargePoint(ChargePointBase):
             charging_schedule=asdict(schedule),
         )
 
+    async def add_charging_profiles(
+        self, charging_profiles: list[AssignedChargingProfile]
+    ):
+        self.cpi.charging_profiles.append(charging_profiles)
+
     async def get_on_set_charging_profile(self, **kwargs):
         response = call.SetChargingProfilePayload(**kwargs)
         charging_profile = parse_obj_as(ChargingProfile, response.cs_charging_profiles)
+        print("do we ever get here")
         if response.connector_id == 0:
             assigned_charging_profile = AssignedChargingProfile(
                 connector_0=True, charging_profile=charging_profile
@@ -208,7 +214,7 @@ class ChargePoint(ChargePointBase):
                 evse_id=evse_id,
                 charging_profile=charging_profile,
             )
-        self.cpi.add_charging_profile(assigned_charging_profile)
+        self.cpi.charging_profiles.append(assigned_charging_profile)
         return call_result.SetChargingProfilePayload(
             status=ChargingProfileStatus.accepted
         )
@@ -761,6 +767,8 @@ class ChargePoint(ChargePointBase):
     ):
         self.cpi.evses[eix].connectors[cix].queued_action = None
         await asyncio.sleep(delay_between_actions)
+
+        print("are we finishing")
 
         stop = call.StopTransactionPayload(
             meter_stop=int(self.cpi.evses[eix].connectors[cix].total_energy),
