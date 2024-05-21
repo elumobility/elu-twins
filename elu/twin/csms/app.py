@@ -17,9 +17,11 @@ except ModuleNotFoundError:
 
     sys.exit(1)
 
-from ocpp.routing import on
+from ocpp.routing import on, after
 from ocpp.v16 import ChargePoint as Cp
-from ocpp.v16 import call_result
+from ocpp.v16.datatypes import ChargingProfile, ChargingSchedule, ChargingSchedulePeriod
+
+from ocpp.v16 import call_result, call
 from ocpp.v16.enums import (
     Action,
     RegistrationStatus,
@@ -33,6 +35,9 @@ from ocpp.v16.enums import (
     TriggerMessageStatus,
     UnlockStatus,
     ResetStatus,
+    ChargingProfileKindType,
+    ChargingProfilePurposeType,
+    ChargingRateUnitType,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -69,12 +74,46 @@ class ChargePoint(Cp):
         return call_result.MeterValuesPayload()
 
     @on(Action.StartTransaction)
-    def on_start_transaction(self, connector_id, id_tag, meter_start, timestamp):
+    async def on_start_transaction(self, connector_id, id_tag, meter_start, timestamp):
         transaction_id = random.randint(0, 10000000)
-        return call_result.StartTransactionPayload(
+        response = call_result.StartTransactionPayload(
             transaction_id=transaction_id,
             id_tag_info=IdTagInfo(status=AuthorizationStatus.accepted),
         )
+        # await self.set_charging_profile(
+        #     connector_id=connector_id, transaction_id=transaction_id
+        # )
+        return response
+
+    def get_charging_profile(self, transaction_id: int):
+        s1 = ChargingSchedulePeriod(start_period=0, limit=500).__dict__
+        s2 = ChargingSchedulePeriod(start_period=3600, limit=500).__dict__
+        periods = [s1, s2]
+
+        scheduele = ChargingSchedule(
+            charging_rate_unit=ChargingRateUnitType.watts,
+            charging_schedule_period=periods,
+        ).__dict__
+        cp = ChargingProfile(
+            charging_profile_id=158798,
+            stack_level=0,
+            charging_profile_kind=ChargingProfileKindType.absolute,
+            charging_profile_purpose=ChargingProfilePurposeType.tx_profile,
+            charging_schedule=scheduele,
+            transaction_id=transaction_id,
+        ).__dict__
+        return cp
+
+    @after(Action.StartTransaction)
+    async def set_charging_profile(self, connector_id, id_tag, meter_start, timestamp):
+        charging_profile = self.get_charging_profile(transaction_id=10)
+        print(f"inside the csms: {charging_profile}")
+        request = call.SetChargingProfilePayload(
+            connector_id=connector_id,
+            cs_charging_profiles=charging_profile,
+        )
+        response = await self.call(request)
+        return response
 
     @on(Action.StopTransaction)
     def on_stop_transaction(self, **kwargs):
