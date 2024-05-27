@@ -69,21 +69,21 @@ class ChargePoint(ChargePointBase):
         )
         return request
 
-    async def get_after_boot_notification(self, response):
-        await update_evse_and_connectors(self.cpi)
-        for evse in self.cpi.evses:
-            for connector in evse.connectors:
-                # print(f"hi: {connector.id}")
-                request = call.StatusNotificationPayload(
-                    timestamp=str(datetime.now(timezone.utc)),
-                    connector_status=connector.status,
-                    evse_id=evse.evseid,
-                    connector_id=connector.connectorid,
-                )
-                # re = await self.call(request)
-                print("get after:", request)
-                # print("\n 1 get after:", re)
-        return response
+    # async def get_after_boot_notification(self, response):
+    #     await update_evse_and_connectors(self.cpi)
+    #     for evse in self.cpi.evses:
+    #         for connector in evse.connectors:
+    #             # print(f"hi: {connector.id}")
+    #             request = call.StatusNotificationPayload(
+    #                 timestamp=str(datetime.now(timezone.utc)),
+    #                 connector_status=connector.status,
+    #                 evse_id=evse.evseid,
+    #                 connector_id=connector.connectorid,
+    #             )
+    #             # re = await self.call(request)
+    #             print("get after:", request)
+    #             # print("\n 1 get after:", re)
+    #     return response
 
     async def get_send_status_notification(self, **kwargs):
         # request = call.BootNotificationPayload(**kwargs)
@@ -183,7 +183,6 @@ class ChargePoint(ChargePointBase):
         interval = 5
 
         while charge:
-            print("do we even get here")
             i += 1
             event = call.TransactionEventPayload(
                 event_type=enums.TransactionEventType.updated,
@@ -195,7 +194,6 @@ class ChargePoint(ChargePointBase):
                 meter_value=self.get_meter_value_event(power=10, soc=10, energy=10),
             )
             await self.send_transaction_event(**asdict(event))
-            print("do we even get here11")
             await asyncio.sleep(interval)
 
         stop = call.TransactionEventPayload(
