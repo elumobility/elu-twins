@@ -86,8 +86,8 @@ class ChargePoint(Cp):
         return response
 
     def get_charging_profile(self, transaction_id: int):
-        s1 = ChargingSchedulePeriod(start_period=0, limit=500).__dict__
-        s2 = ChargingSchedulePeriod(start_period=3600, limit=500).__dict__
+        s1 = ChargingSchedulePeriod(start_period=0, limit=12000).__dict__
+        s2 = ChargingSchedulePeriod(start_period=60, limit=24000).__dict__
         periods = [s1, s2]
 
         scheduele = ChargingSchedule(
@@ -107,7 +107,6 @@ class ChargePoint(Cp):
     @after(Action.StartTransaction)
     async def set_charging_profile(self, connector_id, id_tag, meter_start, timestamp):
         charging_profile = self.get_charging_profile(transaction_id=10)
-        print(f"inside the csms: {charging_profile}")
         request = call.SetChargingProfilePayload(
             connector_id=connector_id,
             cs_charging_profiles=charging_profile,
