@@ -62,6 +62,7 @@ from ocpp.v16.enums import (
     UpdateStatus,
     CancelReservationStatus,
     ChargePointStatus,
+    ChargingProfilePurposeType,
 )
 from pydantic.tools import parse_obj_as
 
@@ -205,10 +206,31 @@ class ChargePoint(ChargePointBase):
                 connector_id=request.connector_id,
             )
 
-    async def add_charging_profiles(
-        self, charging_profiles: list[AssignedChargingProfile]
-    ):
-        self.cpi.charging_profiles.append(charging_profiles)
+    async def add_charging_profile(self, charging_profile: AssignedChargingProfile):
+        """Adds charging profile to existing list of charge points
+
+        Args:
+            charging_profile (AssignedChargingProfile): _description_
+        """
+        has_been_added = False
+        print("do we get here: ", charging_profile)
+        for i, profile in enumerate(self.cpi.charging_profiles):
+            ch_profile = profile.charging_profile
+            ch_new_profile = charging_profile.charging_profile
+            # If a charging profile with the same chargingProfileId,
+            # or the same combination of stackLevel / ChargingProfilePurpose,
+            # exists on the Charge Point, the new charging profile SHALL replace
+            # the existing charging profile,
+            if (
+                ch_profile.stack_level == ch_new_profile.stack_level
+                or ch_profile.charging_profile_id == ch_new_profile.charging_profile_id
+            ):
+                self.cpi.charging_profiles[i] = charging_profile
+                has_been_added = True
+                break
+        if not has_been_added:
+            self.cpi.charging_profiles.append(charging_profile)
+            print("innside: ", self.cpi.charging_profiles)
 
     async def get_on_set_charging_profile(self, **kwargs):
         response = call.SetChargingProfilePayload(**kwargs)
@@ -221,13 +243,18 @@ class ChargePoint(ChargePointBase):
             evse_id, connector_id = self._get_evse_and_connector_id(
                 response.connector_id
             )
+            if (
+                charging_profile.charging_profile_purpose
+                == ChargingProfilePurposeType.tx_profile
+            ):
+                charging_profile.valid_from = get_now(as_string=False)
             assigned_charging_profile = AssignedChargingProfile(
                 connector_0=False,
                 connector_id=connector_id,
                 evse_id=evse_id,
                 charging_profile=charging_profile,
             )
-        self.cpi.charging_profiles.append(assigned_charging_profile)
+        await self.add_charging_profile(charging_profile=assigned_charging_profile)
         return call_result.SetChargingProfilePayload(
             status=ChargingProfileStatus.accepted
         )
@@ -684,10 +711,15 @@ class ChargePoint(ChargePointBase):
     ):
         # Todo: check datetimes are both same time-zone
         if self.cpi.charging_profiles:
-            current_time = datetime.now()
+            self.cpi.charging_profiles.sort(
+                key=lambda x: x.charging_profile.stack_level, reverse=True
+            )
+            # Todo: filter for 0 connector or specific connector
+            profile = self.cpi.charging_profiles[0].charging_profile
+            start_time = profile.valid_from
+            current_time = get_now(as_string=False)
             time_difference = current_time - start_time
             time_difference_seconds = int(time_difference.total_seconds())
-            profile = self.cpi.charging_profiles[0].charging_profile
 
             # Todo: need to get transaction id
             schedules = [
