@@ -245,6 +245,22 @@ async def get_transaction(transaction_id: Index) -> OutputTransaction:
             logging.warning(response.status)
 
 
+# async def get_transaction(transactionid: int) -> OutputTransaction:
+#     """
+
+#     :param transaction_id:
+#     :return:
+#     """
+#     url = f"{API_OPERATIONS_PREFIX}/{transactionid}"
+#     async with aiohttp.ClientSession() as session:
+#         async with session.get(url) as response:
+#             if response.status == 200:
+#                 data = await response.json()
+#                 data = OutputTransaction.model_validate(data)
+#                 return data
+#             logging.warning(response.status)
+
+
 async def update_transaction(
     transaction_id: Index, transaction_update: UpdateTransaction
 ):

@@ -54,6 +54,32 @@ async def get_charge_point(
     )
 
 
+@router.get(
+    "/{charge_point_id}/{connector_id}/{duration}", response_model=OutputChargePoint
+)
+async def get_composite_schedule_charge_point(
+    *,
+    session: Session = Depends(get_session),
+    charge_point_id: Index,
+    connector_id,
+    duration,
+):
+    """
+
+    :param session:
+    :param charge_point_id:
+    :return:
+    """
+    obj = session.exec(
+        select(ChargePoint).where(ChargePoint.id == charge_point_id)
+    ).first()
+    if obj:
+        return obj.get_composite_schedule(connector_id=connector_id, duration=duration)
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND, detail="Charge point not found"
+    )
+
+
 @router.put("/status/{charge_point_id}/{status}", response_model=OutputChargePoint)
 def update_charger_status(
     *,

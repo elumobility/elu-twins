@@ -2,7 +2,8 @@ import asyncio
 import logging
 from dataclasses import asdict
 from datetime import datetime
-from typing import Coroutine, Tuple
+from typing import Coroutine, Tuple, Optional
+import copy
 
 from elu.twin.data.enums import (
     ConnectorQueuedActions,
@@ -161,35 +162,48 @@ class ChargePoint(ChargePointBase):
             )
         ]
 
-    def get_composeite_schedule(
-        self, connector_id: int, duration: int, charging_rate_unit: ChargingRateUnitType
-    ) -> ChargingSchedule:
+    def get_composite_schedule(
+        self,
+        connector_id: int,
+        duration: int,
+        charging_rate_unit: ChargingRateUnitType = ChargingRateUnitType.watts,
+    ) -> Optional[ChargingSchedule]:
         schedule = Schedule()
         charging_profiles = []
-        for charging_profile in self.cpi.charging_profiles:
-            if charging_profile.connector_0:
+        print("profiles charging: ", self.cpi.charging_profiles)
+        if self.cpi.charging_profiles:
+            for charging_profile in self.cpi.charging_profiles:
                 charging_profiles.append(charging_profile.charging_profile)
-            elif connector_id == self._get_ocpp_connector_id(
-                charging_profile.evse_id, charging_profile.connector_id
-            ):
-                charging_profiles.append(charging_profile.charging_profile)
+                # if charging_profile.connector_0:
+                #     charging_profiles.append(charging_profile.charging_profile)
+                # elif connector_id == charging_profile.connector_id:
+                #     charging_profiles.append(charging_profile.charging_profile)
 
-        composite_schedule = schedule.from_ocpp_charging_profiles(
-            profiles=charging_profiles,
-            duration=duration,
-            charging_rate_unit=charging_rate_unit,
-        )
-        return composite_schedule
+            composite_schedule = schedule.from_ocpp_charging_profiles(
+                profiles=charging_profiles,
+                duration=duration,
+                charging_rate_unit=charging_rate_unit,
+            )
+            return composite_schedule
+        else:
+            return None
 
     async def get_on_get_composite_schedule(self, **kwargs):
         request = call.GetCompositeSchedulePayload(**kwargs)
-        schedule = self.get_composeite_schedule(**asdict(request))
-        return call_result.GetCompositeSchedulePayload(
-            status=GetCompositeScheduleStatus.accepted,
-            connector_id=request.connector_id,
-            schedule_start=schedule.start_schedule,
-            charging_schedule=asdict(schedule),
-        )
+        print("composite: ", request)
+        schedule = self.get_composite_schedule(**asdict(request))
+        if schedule is not None:
+            return call_result.GetCompositeSchedulePayload(
+                status=GetCompositeScheduleStatus.accepted,
+                connector_id=request.connector_id,
+                schedule_start=schedule.start_schedule,
+                charging_schedule=asdict(schedule),
+            )
+        else:
+            return call_result.GetCompositeSchedulePayload(
+                status=GetCompositeScheduleStatus.rejected,
+                connector_id=request.connector_id,
+            )
 
     async def add_charging_profiles(
         self, charging_profiles: list[AssignedChargingProfile]
@@ -199,7 +213,6 @@ class ChargePoint(ChargePointBase):
     async def get_on_set_charging_profile(self, **kwargs):
         response = call.SetChargingProfilePayload(**kwargs)
         charging_profile = parse_obj_as(ChargingProfile, response.cs_charging_profiles)
-        print("do we ever get here")
         if response.connector_id == 0:
             assigned_charging_profile = AssignedChargingProfile(
                 connector_0=True, charging_profile=charging_profile
@@ -503,7 +516,7 @@ class ChargePoint(ChargePointBase):
             for cix, connector in enumerate(evse.connectors)
             if connector.id == transaction.connector_id
         )
-        return vehicle, eix, cix
+        return vehicle, eix, cix, transaction.start_time
 
     async def _set_preparing_state(
         self, eix: int, cix: int, ocpp_connector_id: int, delay_between_actions: int = 1
@@ -641,6 +654,42 @@ class ChargePoint(ChargePointBase):
             transaction_update=UpdateTransaction(status=TransactionStatus.running),
         )
 
+    async def get_power(
+        self, evse_id: int, connector_id: int, soc: int, vid: str, start_time: datetime
+    ):
+        # Todo: check datetimes are both same time-zone
+        if self.cpi.charging_profiles:
+            current_time = datetime.now()
+            time_difference = current_time - start_time
+            time_difference_seconds = int(time_difference.total_seconds())
+            profile = self.cpi.charging_profiles[0].charging_profile
+
+            # Todo: need to get transaction id
+            schedules = [
+                p
+                for p in profile.charging_schedule.charging_schedule_period
+                if p.start_period <= time_difference_seconds
+            ]
+            schedules.sort(key=lambda x: x.start_period, reverse=True)
+            print("schedules: ", schedules)
+            schedule = schedules[0]
+            print("schedule: ", schedule)
+            if (
+                profile.charging_schedule.charging_rate_unit
+                == ChargingRateUnitType.watts
+            ):
+                power_kw = copy.deepcopy(schedule.limit) / 1000
+            return int(power_kw)
+        else:
+            power = (
+                self.cpi.evses[evse_id].connectors[connector_id].current_dc_power
+            ) = (
+                self.cpi.maximum_dc_power
+                if self.cpi.evses[evse_id].connectors[connector_id].soc < 100
+                else 0
+            )
+            return power
+
     async def _charging_cycle(
         self,
         eix,
@@ -653,22 +702,42 @@ class ChargePoint(ChargePointBase):
         response_start,
         vehicle,
         transactionid,
-        current_scale,
+        current_scale: call_result.StartTransactionPayload,
+        transaction_start_time: datetime,
     ):
-        #            self.cpi.evses[eix].connectors[cix].current_dc_power = await self.get_connector_power(
-        #                evse_id=eix, connector_id=cix, soc=self.cpi.evses[eix].connectors[cix].soc, vid=vehicle.id
-        #            )
-        self.cpi.evses[eix].connectors[cix].current_dc_power = (
-            self.cpi.maximum_dc_power
-            if self.cpi.evses[eix].connectors[cix].soc < 100
-            else 0
+        """_summary_
+
+        Args:
+            eix (int): evse_id
+            cix (int): connector_id
+            meter_values_interval (int): interval in seconds to get meter values
+            initial_soc (int): initial state of charge of vehicle in (%)
+            battery (_type_): _description_
+            ocpp_connector_id (_type_): _description_
+            id_tag (_type_): _description_
+            response_start (StartTransactionPayload): payload for starting a transaction
+            vehicle (_type_): _description_
+            transactionid (_type_): _description_
+            current_scale (_type_): _description_
+        """
+
+        self.cpi.evses[eix].connectors[cix].current_dc_power = await self.get_power(
+            evse_id=eix,
+            connector_id=cix,
+            soc=self.cpi.evses[eix].connectors[cix].soc,
+            vid=vehicle.id,
+            start_time=transaction_start_time,
         )
+
+        print("actual power: ", self.cpi.evses[eix].connectors[cix].current_dc_power)
+
         add_energy = (
             self.cpi.evses[eix].connectors[cix].current_dc_power
             * (meter_values_interval / 3600.0)
             * 1000
         )
         self.cpi.evses[eix].connectors[cix].current_energy += add_energy
+        int(self.cpi.evses[eix].connectors[cix].current_energy)
         self.cpi.evses[eix].connectors[cix].soc = min(
             100,
             int(
@@ -694,7 +763,7 @@ class ChargePoint(ChargePointBase):
         _ = await requests.update_transaction(
             transactionid,
             transaction_update=UpdateTransaction(
-                energy=self.cpi.evses[eix].connectors[cix].current_energy,
+                energy=int(self.cpi.evses[eix].connectors[cix].current_energy),
             ),
         )
         connector_update = UpdateConnector(
@@ -740,8 +809,6 @@ class ChargePoint(ChargePointBase):
     ):
         self.cpi.evses[eix].connectors[cix].queued_action = None
         await asyncio.sleep(delay_between_actions)
-
-        print("are we finishing")
 
         stop = call.StopTransactionPayload(
             meter_stop=int(self.cpi.evses[eix].connectors[cix].total_energy),
@@ -815,7 +882,9 @@ class ChargePoint(ChargePointBase):
         # Request access
         try:
             await asyncio.sleep(delay_between_actions)
-            vehicle, eix, cix = await self._get_transaction_info(transaction_id)
+            vehicle, eix, cix, transaction_start_time = (
+                await self._get_transaction_info(transaction_id)
+            )
 
             id_tag = f"{VID_PREFFIX}{vehicle.id_tag_suffix}"
             battery = vehicle.battery_capacity
@@ -866,6 +935,7 @@ class ChargePoint(ChargePointBase):
                     vehicle,
                     response_start.transaction_id,
                     current_scale,
+                    transaction_start_time,
                 )
                 charge = await self._continue_charging(eix, cix, meter_values_interval)
 

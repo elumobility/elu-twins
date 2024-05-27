@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from ocpp.v16.datatypes import ChargingProfile, ChargingSchedule, ChargingSchedulePeriod
 from ocpp.v16.enums import ChargingRateUnitType
@@ -140,14 +140,21 @@ class Schedule(SQLModel):
         end_schedule = now + timedelta(seconds=duration)
         all_intervals = []
         min_charging_rate = 0
+        print("profiles1: ", profiles)
+
         for profile in profiles:
             stack_level = profile.stack_level
-            start = datetime.strptime(
-                profile.charging_schedule.start_schedule, "%Y-%m-%dT%H:%M:%S.%f"
-            )
-            min_charging_rate = max(
-                min_charging_rate, profile.charging_schedule.min_charging_rate
-            )
+            if profile.charging_schedule.start_schedule:
+                start = datetime.strptime(
+                    profile.charging_schedule.start_schedule, "%Y-%m-%dT%H:%M:%S.%fZ"
+                ).replace(tzinfo=timezone.utc)
+            else:
+                start = now
+
+            if profile.charging_schedule.min_charging_rate:
+                min_charging_rate = max(
+                    min_charging_rate, profile.charging_schedule.min_charging_rate
+                )
             n_intervals = len(profile.charging_schedule.charging_schedule_period)
             for i in range(n_intervals):
                 period = profile.charging_schedule.charging_schedule_period[i]

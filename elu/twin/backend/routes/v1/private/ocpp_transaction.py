@@ -36,6 +36,26 @@ async def get_transaction(
     )
 
 
+# @router.get("/ocpp/{transactionid}", response_model=OutputTransaction)
+# async def get_transaction(
+#     *, session: Session = Depends(get_session), transactionid: int
+# ):
+#     """Get transaction by by ocpp transactionid
+
+#     Args:
+#         session (Session, optional): [description]. Defaults to Depends(get_session).
+#         transaction_id (int): [description]
+#     """
+#     transaction = session.exec(
+#         select(Transaction).where(Transaction.transactionidid == transaction_id)
+#     ).first()
+#     if transaction:
+#         return transaction
+#     raise HTTPException(
+#         status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found"
+#     )
+
+
 @router.patch("/{transaction_id}", response_model=OutputTransaction)
 async def update_transactions(
     *,
