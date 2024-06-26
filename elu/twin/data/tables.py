@@ -45,9 +45,9 @@ class ChargePoint(ChargePointBase, OwnedByUser, table=True):
     ocpp_configuration_v16_id: Index | None = Field(
         default=None, foreign_key="ocppconfigurationv16.id"
     )
-    # charging_profiles: List["ChargingProfile"] = Relationship(
-    #     back_populates="charge_point"
-    # )
+    charging_profiles: List["ChargingProfile"] = Relationship(
+        back_populates="charge_point"
+    )
 
 
 class Evse(TableBase, table=True):

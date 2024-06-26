@@ -63,6 +63,7 @@ from ocpp.v16.enums import (
     CancelReservationStatus,
     ChargePointStatus,
     ChargingProfilePurposeType,
+    ChargingProfileKindType,
 )
 from pydantic.tools import parse_obj_as
 
@@ -246,8 +247,28 @@ class ChargePoint(ChargePointBase):
             if (
                 charging_profile.charging_profile_purpose
                 == ChargingProfilePurposeType.tx_profile
+                and charging_profile.charging_profile_kind
+                == ChargingProfileKindType.relative
             ):
                 charging_profile.valid_from = get_now(as_string=False)
+                charging_profile.charging_schedule.start_schedule = get_now(
+                    as_string=False
+                )
+            # Set absolute time scheduele if start_scheduele is not set,
+            # it will be the same as a relative scheduele
+            elif (
+                charging_profile.charging_profile_kind
+                == ChargingProfileKindType.absolute
+            ):
+                if not charging_profile.charging_schedule.start_schedule:
+                    charging_profile.valid_from = get_now(as_string=False)
+                    charging_profile.charging_schedule.start_schedule = get_now(
+                        as_string=False
+                    )
+                else:
+                    charging_profile.valid_from = (
+                        charging_profile.charging_schedule.start_schedule
+                    )
             assigned_charging_profile = AssignedChargingProfile(
                 connector_0=False,
                 connector_id=connector_id,
