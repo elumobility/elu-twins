@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Coroutine, Tuple
 
 from elu.twin.data.enums import (
+    AuthorizationStatus,
     ConnectorQueuedActions,
     EvseStatus,
     ConnectorStatus,
@@ -33,6 +34,7 @@ from ocpp.v16.datatypes import (
     ChargingProfile,
     ChargingSchedule,
     AuthorizationData,
+    IdTagInfo,
 )
 from ocpp.v16.enums import (
     Action,
@@ -115,8 +117,6 @@ class ChargePoint(ChargePointBase):
         return call_result.ResetPayload(status=ResetStatus.accepted)
 
     async def get_on_get_local_list_version(self, **kwargs):
-        # TODO: not used
-        _ = call.GetLocalListVersionPayload()
         return call_result.GetLocalListVersionPayload(
             list_version=self.cpi.authorization_list_version
         )
@@ -361,6 +361,7 @@ class ChargePoint(ChargePointBase):
     def _updated_authorization_data(
         self, auth_list: list[AuthorizationData]
     ) -> list[AuthorizationData] | None:
+
         _id_tags = {auth.id_tag for auth in self.cpi.authorization_list}
         _update_tags = {auth.id_tag for auth in auth_list}
         if not _update_tags.issubset(_id_tags):
@@ -370,7 +371,10 @@ class ChargePoint(ChargePointBase):
             (_update_dict.get(auth.id_tag) if _update_dict.get(auth.id_tag) else auth)
             for auth in self.cpi.authorization_list
         ]
-        return new_list
+        if len(new_list) > self.ocpp_configuration.LocalAuthListMaxLength:
+            return None
+        new_list1 = [AuthorizationData(**x) for x in new_list]
+        return new_list1
 
     async def get_on_send_local_list(self, **kwargs):
         if not self.ocpp_configuration.LocalAuthListEnabled:
@@ -382,16 +386,18 @@ class ChargePoint(ChargePointBase):
             updated_list = self._updated_authorization_data(_list)
             if updated_list is None:
                 return call_result.SendLocalListPayload(status=UpdateStatus.failed)
-            self.cpi.authorization_list = updated_list
+            self.cpi.local_auth_list = updated_list
         else:
-            self.cpi.authorization_list = response.local_authorization_list
-        # TODO
-        #        await requests.update_auth_list(
-        #            user_id=self.cpi.user_id,
-        #            cid=self.cpi.cid,
-        #            version=self.cpi.authorization_list_version,
-        #            auth_list=self.cpi.authorization_list,
-        #        )
+            if (
+                len(response.local_authorization_list)
+                > self.ocpp_configuration.LocalAuthListMaxLength
+            ):
+                return call_result.SendLocalListPayload(status=UpdateStatus.failed)
+            else:
+                self.cpi.local_auth_list = [
+                    AuthorizationData(**x) for x in response.local_authorization_list
+                ]
+
         self.cpi.authorization_list_version = response.list_version
         return call_result.SendLocalListPayload(status=UpdateStatus.accepted)
 
@@ -521,6 +527,26 @@ class ChargePoint(ChargePointBase):
     async def _try_authorize(
         self, id_tag: str, ocpp_connector_id: int, delay_between_actions: int = 1
     ):
+        call_csms = True
+        # Check if chargepoint can authorize id_tag locally
+        logging.debug("are we getting here")
+        if self.ocpp_configuration.LocalAuthListEnabled:
+            print("\n dir: ", dir(self))
+            if self.cpi.local_auth_list:
+                print("\n local_auth_list: ", self.cpi.local_auth_list)
+                auth_data = [x for x in self.cpi.local_auth_list if x.id_tag == id_tag]
+                if (
+                    auth_data
+                    and auth_data[0].id_tag_info.status == AuthorizationStatus.accepted
+                ):
+                    call_csms = False
+
+        if call_csms:
+            authorize = call.AuthorizePayload(id_tag=id_tag)
+            response_authorize: call_result.AuthorizePayload = (
+                await self.send_authorize(**asdict(authorize))
+            )
+            print("response", response_authorize)
 
         # TODO Implement authorization in CSMS
         #        authorize = call.AuthorizePayload(id_tag=id_tag)
@@ -791,6 +817,16 @@ class ChargePoint(ChargePointBase):
                 status=TransactionStatus.completed, end_time=get_now()
             ),
         )
+
+    # async def update_local_list(self, id_tag_request: AuthorizationData):
+    #     is_too_long = (
+    #         len(self.local_auth_list) > self.ocpp_configuration.LocalAuthListMaxLength
+    #     )
+    #     for i, id_tag in enumerate(self.local_auth_list):
+    #         if id_tag.id_tag == id_tag_request.id_tag:
+    #             self.local_auth_list[i] = id_tag_request
+
+    #     element = self.get_id_in_local_list(id_tag=id_tag_request.id_tag)
 
     async def start_transaction(
         self,

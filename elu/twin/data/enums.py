@@ -110,3 +110,11 @@ class EnergySource(StrEnum):
     gas = "gas"
     diesel = "diesel"
     hybrid = "hybrid"
+
+
+class AuthorizationStatus(StrEnum):
+    accepted = "accepted"  # Identifier is allowed for charging
+    blocked = "blocked"  # Identifier has been blocked. Not allowed for charging.
+    expired = "expired"  # Identifier has expired. Not allowed for charging.
+    invalid = "invalid"  # Identifier is unknown. Not allowed for charging.
+    concurrentTx = "concurrentTx"  # Identifier is already involved in another transaction and multiple transactions are not allowed. (Only relevant for a StartTransaction.req.)
