@@ -221,7 +221,7 @@ def create_charge_point(
         session, charge_point, current_user.id, quota.id
     )
     if add_to_internal_steve:
-        add_charge_points_to_steve([db_charge_point.name])
+        add_charge_points_to_steve([db_charge_point.cid])
     return db_charge_point
 
 

@@ -263,7 +263,7 @@ class OcppConfigurationV16Params(OcppConfigurationBase):
         default=None, description="Web socket ping interval"
     )
     LocalAuthListEnabled: bool = Field(
-        default=False, description="Local authorization list enabled"
+        default=True, description="Local authorization list enabled"
     )
     LocalAuthListMaxLength: int = Field(
         default=100, description="Local authorization list max length"
