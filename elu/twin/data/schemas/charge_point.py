@@ -4,11 +4,24 @@ from typing import List, Optional
 from ocpp.v16.enums import ChargePointStatus
 from ocpp.v201.enums import BootReasonType
 from sqlmodel import Field, SQLModel
+from ocpp.v16.datatypes import (
+    AuthorizationData,
+)
 
 from elu.twin.data.schemas.common import Index, UpdateSchema
-from elu.twin.data.enums import Protocol
+from elu.twin.data.enums import AuthorizationStatus, Protocol
 from elu.twin.data.schemas.evse import InputEvse, OutputEvse
 from elu.twin.data.utils import generate_cid
+
+
+# class IdTagInfo(SQLModel):
+#     expiry_date: datetime | None = Field(default=None)
+#     id_tag: str = Field(index=True)
+#     status: AuthorizationStatus
+
+
+# class LocalAuthList(SQLModel):
+#     entries: list[IdTagInfo] = []
 
 
 class ChargePointBase(SQLModel):
@@ -54,7 +67,9 @@ class OutputSimpleChargePoint(ChargePointBase):
 
 class OutputChargePoint(OutputSimpleChargePoint):
     evses: List[OutputEvse] = Field(default_factory=list)
+    local_auth_list: list[AuthorizationData] = Field(default_factory=list)
     user_id: Index | None = Field(default=None)
+    authorization_list_version: int = Field(default=0)
 
 
 class UpdateChargePoint(UpdateSchema):

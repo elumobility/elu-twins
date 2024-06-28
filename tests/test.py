@@ -54,15 +54,3 @@ def test_create_user(client: TestClient):
 
     response = client.post("/user/", json=j)
     assert response.status_code == 200
-    # assert response.json() == {
-    #     "Status": "Success",
-    #     "User": {
-    #         "first_name": "PLACEHOLDER",
-    #         "last_name": "PLACEHOLDER",
-    #         "activated": False,
-    #         "createdAt": "2023-03-17T00:04:32",
-    #         "id": user_id,
-    #         "address": "PLACEHOLDER",
-    #         "updatedAt": None,
-    #     },
-    # }
