@@ -71,6 +71,8 @@ class OutputSimpleChargePoint(ChargePointBase):
 class OutputChargePoint(OutputSimpleChargePoint):
     evses: List[OutputEvse] = Field(default_factory=list)
     local_auth_list: list[AuthorizationData] = Field(default_factory=list)
+    charging_profiles: List[AssignedChargingProfile] = Field(default_factory=list)
+
     user_id: Index | None = Field(default=None)
     authorization_list_version: int = Field(default=0)
 
