@@ -529,24 +529,23 @@ class ChargePoint(ChargePointBase):
     ):
         call_csms = True
         # Check if chargepoint can authorize id_tag locally
-        logging.debug("are we getting here")
         if self.ocpp_configuration.LocalAuthListEnabled:
-            print("\n dir: ", dir(self))
             if self.cpi.local_auth_list:
-                print("\n local_auth_list: ", self.cpi.local_auth_list)
                 auth_data = [x for x in self.cpi.local_auth_list if x.id_tag == id_tag]
                 if (
                     auth_data
                     and auth_data[0].id_tag_info.status == AuthorizationStatus.accepted
                 ):
                     call_csms = False
+                    response = auth_data[0]
 
         if call_csms:
             authorize = call.AuthorizePayload(id_tag=id_tag)
-            response_authorize: call_result.AuthorizePayload = (
-                await self.send_authorize(**asdict(authorize))
+            response: call_result.AuthorizePayload = await self.send_authorize(
+                **asdict(authorize)
             )
-            print("response", response_authorize)
+            print("response", response)
+        return response
 
         # TODO Implement authorization in CSMS
         #        authorize = call.AuthorizePayload(id_tag=id_tag)
@@ -672,7 +671,7 @@ class ChargePoint(ChargePointBase):
         id_tag,
         response_start,
         vehicle,
-        transactionid,
+        transaction_id,
         current_scale,
     ):
         #            self.cpi.evses[eix].connectors[cix].current_dc_power = await self.get_connector_power(
@@ -688,6 +687,7 @@ class ChargePoint(ChargePointBase):
             * (meter_values_interval / 3600.0)
             * 1000
         )
+        add_energy = int(add_energy)
         self.cpi.evses[eix].connectors[cix].current_energy += add_energy
         self.cpi.evses[eix].connectors[cix].soc = min(
             100,
@@ -712,7 +712,7 @@ class ChargePoint(ChargePointBase):
         )
         await self.send_meter_values(**asdict(meter_value))
         _ = await requests.update_transaction(
-            transactionid,
+            transaction_id,
             transaction_update=UpdateTransaction(
                 energy=self.cpi.evses[eix].connectors[cix].current_energy,
             ),
@@ -757,6 +757,7 @@ class ChargePoint(ChargePointBase):
         id_tag: str,
         vehicle_id: Index,
         delay_between_actions: int,
+        transaction_id: Index,
     ):
         self.cpi.evses[eix].connectors[cix].queued_action = None
         await asyncio.sleep(delay_between_actions)
@@ -812,7 +813,7 @@ class ChargePoint(ChargePointBase):
             vehicle_id, VehicleStatus.ready_to_charge
         )
         _ = await requests.update_transaction(
-            transactionid,
+            transaction_id,
             transaction_update=UpdateTransaction(
                 status=TransactionStatus.completed, end_time=get_now()
             ),
@@ -854,8 +855,8 @@ class ChargePoint(ChargePointBase):
                 eix, cix, ocpp_connector_id, delay_between_actions
             )
 
-            _ = await self._try_authorize(
-                id_tag, ocpp_connector_id, delay_between_actions
+            auth_response = await self._try_authorize(
+                vehicle.id_tag_suffix, ocpp_connector_id, delay_between_actions
             )
 
             # Start transaction
@@ -863,7 +864,11 @@ class ChargePoint(ChargePointBase):
             meter_start = int(self.cpi.evses[eix].connectors[cix].total_energy)
 
             response_start = await self._try_to_start_transaction(
-                ocpp_connector_id, id_tag, meter_start, reservation_id, transaction_id
+                ocpp_connector_id,
+                vehicle.id_tag_suffix,
+                meter_start,
+                reservation_id,
+                transaction_id,
             )
 
             current_scale = 1000
@@ -892,7 +897,7 @@ class ChargePoint(ChargePointBase):
                     id_tag,
                     response_start,
                     vehicle,
-                    response_start.transaction_id,
+                    transaction_id,
                     current_scale,
                 )
                 charge = await self._continue_charging(eix, cix, meter_values_interval)
@@ -903,9 +908,10 @@ class ChargePoint(ChargePointBase):
                 cix,
                 ocpp_connector_id,
                 response_start.transaction_id,
-                id_tag,
+                vehicle.id_tag_suffix,
                 vehicle.id,
                 delay_between_actions,
+                transaction_id,
             )
         except Exception as e:
             logging.error(f"Error in transaction {transaction_id}: {e}")
