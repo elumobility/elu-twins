@@ -8,6 +8,9 @@ from ocpp.v16.datatypes import (
     AuthorizationData,
 )
 
+from elu.twin.charge_point.charge_point.models.charge_point import (
+    AssignedChargingProfile,
+)
 from elu.twin.data.schemas.common import Index, UpdateSchema
 from elu.twin.data.enums import AuthorizationStatus, Protocol
 from elu.twin.data.schemas.evse import InputEvse, OutputEvse
@@ -67,7 +70,12 @@ class OutputSimpleChargePoint(ChargePointBase):
 
 class OutputChargePoint(OutputSimpleChargePoint):
     evses: List[OutputEvse] = Field(default_factory=list)
+<<<<<<< HEAD
     local_auth_list: list[AuthorizationData] = Field(default_factory=list)
+=======
+    charging_profiles: List[AssignedChargingProfile] = Field(default_factory=list)
+
+>>>>>>> charging-profiles
     user_id: Index | None = Field(default=None)
     authorization_list_version: int = Field(default=0)
 

@@ -6,9 +6,10 @@ from typing import Coroutine
 import redis
 from loguru import logger
 from sqlmodel import SQLModel
-
+from ocpp.v16.call import SetChargingProfilePayload
 from elu.twin.charge_point import requests
 from elu.twin.charge_point.charge_point.models.charge_point import (
+    AssignedChargingProfile,
     actions,
 )
 from elu.twin.charge_point.env import REDIS_HOSTNAME, REDIS_DB_ACTIONS, REDIS_PORT
@@ -16,6 +17,7 @@ from elu.twin.data.enums import PowerType, is_dc, ConnectorStatus, EvseStatus
 from elu.twin.data.schemas.charge_point import OutputChargePoint as Cpi
 from elu.twin.data.schemas.common import Index
 from elu.twin.data.schemas.transaction import (
+    RedisRequestSetChargingProfile,
     RedisRequestStartTransaction,
     RedisRequestStopTransaction,
 )
@@ -136,9 +138,11 @@ class ChargePointConsumer:
         """
         while True:
             obj = await self.actions_queue.get()
+            logger.warning(f"debug: {obj}")
             if isinstance(obj, RedisRequestStartTransaction):
                 start_transaction: RedisRequestStartTransaction = obj
                 self.actions_queue.task_done()
+                logger.warning(f"dick: {start_transaction.dict()}")
                 task = asyncio.create_task(
                     self.start_transaction(**start_transaction.dict())
                 )
@@ -152,27 +156,16 @@ class ChargePointConsumer:
                 )
                 self.actions_set.add(task)
                 task.add_done_callback(self.actions_set.discard)
-            #            elif isinstance(obj, Disconnect):
-            #                self.actions_queue.task_done()
-            #                task = asyncio.create_task(
-            #                    self.connect_disconnect(mode=ChargePointStatus.unavailable)
-            #                )
-            #                self.actions_set.add(task)
-            #                task.add_done_callback(self.actions_set.discard)
+            elif isinstance(obj, SetChargingProfilePayload):
+                charging_profile: SetChargingProfilePayload = obj
+                self.actions_queue.task_done()
+                task = asyncio.create_task(
+                    self.get_on_set_charging_profile(charging_profile)
+                )
+                self.actions_set.add(task)
+                task.add_done_callback(self.actions_set.discard)
             else:
                 logger.warning(f"unknown action: {obj}")
-
-    def get_processes(self) -> list[Coroutine]:
-        """
-
-        :return:
-        """
-        return [
-            self.start(),
-            self.send_boot_notification(),
-            self.process_actions(),
-            self.consume_actions_redis(REDIS_HOSTNAME, f"actions-{self.cpi.id}"),
-        ]
 
     @logger.catch
     async def consume_actions_redis(self, channel: str):

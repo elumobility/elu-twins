@@ -55,3 +55,7 @@ class RedisRequestStartTransaction(RedisRequestTransaction):
 
 class RedisRequestStopTransaction(RedisRequestTransaction):
     name: TransactionName = TransactionName.stop_transaction
+
+
+class RedisRequestSetChargingProfile(SQLModel):
+    pass

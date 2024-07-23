@@ -4,12 +4,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from ocpp.v16.enums import ChargePointStatus
 from sqlmodel import Session, select
-
+from elu.twin.data.enums import ChargingProfileStatusv16, Protocol
 from elu.twin.backend.crud.user import get_current_active_user
 from elu.twin.backend.db.database import get_session
 from elu.twin.backend.routes.v1.common.charge_point_actions import (
     _post_request_start_charging,
     _stop_charging,
+    _set_charging_profile,
 )
 from elu.twin.charge_point.celery_factory import create_charger, app_celery
 from elu.twin.data.enums import (
@@ -26,6 +27,7 @@ from elu.twin.data.schemas.transaction import (
     RequestStartTransaction,
     RequestStopTransaction,
 )
+from elu.twin.data.schemas.charging_profile import ChargePointProfile
 from elu.twin.data.tables import (
     User,
     ChargePoint,
@@ -69,6 +71,8 @@ def connect_charger(
         .where(ChargePoint.id == connect_charge_point.charge_point_id)
         .where(ChargePoint.user_id == current_user.id)
     ).first()
+    if charge_point.ocpp_protocol == Protocol.v201:
+        charge_point.boot_reason = connect_charge_point.boot_reason
     if charge_point:
         if charge_point.csms_url is None:
             raise HTTPException(
@@ -124,3 +128,13 @@ def disconnect_charger(
                 return ActionMessageRequest(message="Disconnect charge point requested")
             raise HTTPException(status_code=400, detail="Charge point not connected")
     raise HTTPException(status_code=400, detail="Charge point not found")
+
+
+@router.post("/charging-profile")
+def set_charging_profile(
+    *,
+    session: Session = Depends(get_session),
+    charge_profile_request: ChargePointProfile,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    return _set_charging_profile(session, charge_profile_request, current_user)
