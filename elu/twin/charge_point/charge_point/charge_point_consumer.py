@@ -8,10 +8,7 @@ from loguru import logger
 from sqlmodel import SQLModel
 from ocpp.v16.call import SetChargingProfilePayload
 from elu.twin.charge_point import requests
-from elu.twin.charge_point.charge_point.models.charge_point import (
-    AssignedChargingProfile,
-    actions,
-)
+from elu.twin.charge_point.charge_point.models.charge_point import actions
 from elu.twin.charge_point.env import REDIS_HOSTNAME, REDIS_DB_ACTIONS, REDIS_PORT
 from elu.twin.data.enums import PowerType, is_dc, ConnectorStatus, EvseStatus
 from elu.twin.data.schemas.charge_point import OutputChargePoint as Cpi

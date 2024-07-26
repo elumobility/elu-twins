@@ -9,7 +9,8 @@ from elu.twin.data.schemas.transaction import (
     RedisRequestStartTransaction,
     RedisRequestStopTransaction,
 )
-from ocpp.v16.datatypes import ChargingProfile
+
+# from ocpp.v16.datatypes import ChargingProfile
 from sqlmodel import SQLModel, Field
 
 
@@ -25,13 +26,6 @@ class Reservation(SQLModel):
             if self.connector_id == 0 or self.connector_id == connector_id:
                 return self.reservation_id
         return None
-
-
-class AssignedChargingProfile(SQLModel):
-    evse_id: int | None = Field(None)
-    connector_id: int | None = Field(None)
-    connector_0: bool = Field(True)
-    charging_profile: ChargingProfile
 
 
 actions = {

@@ -2,6 +2,8 @@
 
 import logging
 
+
+from elu.twin.backend.routes.v1.common.charge_point_actions import _set_charging_profile
 from elu.twin.data.schemas.auth import OutputAuthV16, InputAuthV16
 from elu.twin.data.schemas.charge_point import OutputChargePoint, UpdateChargePoint
 from elu.twin.data.schemas.common import Index
@@ -14,7 +16,9 @@ from sqlmodel import Session, select, delete
 from elu.twin.backend.db.database import get_session
 from elu.twin.data.enums import EvseStatus, ConnectorStatus, AuthMethod
 from elu.twin.data.tables import (
+    AssignedChargingProfile,
     ChargePoint,
+    ChargingSchedulePeriod,
     Evse,
     Connector,
     OcppConfigurationV16,
@@ -47,6 +51,7 @@ async def get_charge_point(
     obj = session.exec(
         select(ChargePoint).where(ChargePoint.id == charge_point_id)
     ).first()
+    print("obj", obj)
     if obj:
         return obj
     raise HTTPException(
@@ -132,6 +137,117 @@ def update_charger(
     session.commit()
     session.refresh(db_charge_point)
     return db_charge_point
+
+
+def parse_charging_profile(data: dict) -> AssignedChargingProfile:
+    charging_schedule_periods = [
+        ChargingSchedulePeriod(
+            start_period=period["start_period"],
+            limit=period["limit"],
+            number_phases=period.get("number_phases"),
+        )
+        for period in data.get("charging_schedule_period", [])
+    ]
+
+    charging_profile = AssignedChargingProfile(
+        chargingprofileid=data["chargingprofileid"],
+        connector_id=data.get("connector_id"),
+        connector_0=data.get("connector_0", True),
+        stack_level=data["stack_level"],
+        charging_profile_purpose=data["charging_profile_purpose"],
+        charging_profile_kind=(data["charging_profile_kind"]),
+        charging_rate_unit=(data["charging_rate_unit"]),
+        charging_schedule_period=charging_schedule_periods,
+    )
+
+    return charging_profile
+
+
+@router.patch("/profile/{charge_point_id}")
+def update_charger_profile(
+    *,
+    session: Session = Depends(get_session),
+    charge_point_id: Index,
+    charging_profile_request: dict,
+):
+    """
+    Patch an assigned charging profile to a charge point.
+
+    :param session: Database session
+    :param charge_point_id: ID of the charge point
+    :param charging_profile_request: Request body with charging profile data
+    :return: Updated charge point with the new charging profile
+    """
+    db_charge_point = session.exec(
+        select(ChargePoint).where(ChargePoint.id == charge_point_id)
+    ).first()
+    if not db_charge_point:
+        return {"message": "Charge point not found"}
+
+    charge_profile = parse_charging_profile(charging_profile_request)
+    charge_profile.charge_point_id = db_charge_point.id
+
+    # Add charging profile and its periods to the session
+    session.add(charge_profile)
+    session.commit()
+
+    # Update the charging profile ID for periods and add them to the session
+    for period in charge_profile.charging_schedule_period:
+        period.charging_profile_id = charge_profile.id
+        session.add(period)
+
+    session.commit()
+
+    # Append the new charging profile to the charge point and update the session
+    db_charge_point.charging_profiles.append(charge_profile)
+    session.add(db_charge_point)
+    session.commit()
+    session.refresh(db_charge_point)
+
+    # _set_charging_profile(session=session,)
+
+    return db_charge_point
+
+
+# @router.patch("/profile/{charge_point_id}")
+# def update_charger_profile(
+#     *,
+#     session: Session = Depends(get_session),
+#     charge_point_id: Index,
+#     charging_profile_request: dict,
+# ):
+#     """
+
+#     :param session:
+#     :param charge_point_id:
+#     :param status:
+#     :return:
+#     """
+#     db_charge_point = session.exec(
+#         select(ChargePoint).where(ChargePoint.id == charge_point_id)
+#     ).first()
+#     if not db_charge_point:
+#         return {"message": "Charge point not found"}
+
+#     charge_profile, charging_schedule_periods = parse_charging_profile(
+#         charging_profile_request
+#     )
+#     charge_profile.charge_point_id = db_charge_point.id
+#     charge_profile.charging_schedule_period = charging_schedule_periods
+#     print("\n charge profile", charge_profile)
+
+#     session.add(charge_profile)
+#     session.commit()
+#     for period in charging_schedule_periods:
+#         period.charging_profile_id = charge_profile.id
+#         session.add(period)
+#         session.commit()
+
+#     db_charge_point.charging_profiles.append(charge_profile)
+#     session.add(db_charge_point)
+#     session.commit()
+#     session.refresh(db_charge_point)
+#     return db_charge_point
 
 
 @router.put("/evse/status/{evse_id}/{status}", response_model=OutputEvse)

@@ -8,12 +8,11 @@ from ocpp.v16.datatypes import (
     AuthorizationData,
 )
 
-from elu.twin.charge_point.charge_point.models.charge_point import (
-    AssignedChargingProfile,
-)
+
 from elu.twin.data.schemas.common import Index, UpdateSchema
 from elu.twin.data.enums import AuthorizationStatus, Protocol
 from elu.twin.data.schemas.evse import InputEvse, OutputEvse
+from elu.twin.data.schemas.charging_profile import AssignedChargingProfile
 from elu.twin.data.utils import generate_cid
 
 

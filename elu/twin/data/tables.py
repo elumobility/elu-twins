@@ -2,9 +2,6 @@ from typing import Optional, List
 
 from sqlmodel import Field, Relationship
 
-from elu.twin.charge_point.charge_point.models.charge_point import (
-    AssignedChargingProfile,
-)
 from elu.twin.data.enums import (
     EvseStatus,
 )
@@ -17,10 +14,16 @@ from elu.twin.data.schemas.transaction import BaseTransaction
 from elu.twin.data.schemas.user import BaseUser
 from elu.twin.data.schemas.vehicle import VehicleBase
 from elu.twin.data.schemas.ocpp_configuration import (
-    OcppConfigurationV16Params,
     OcppConfigurationV16Base,
 )
 from elu.twin.data.schemas.auth import BaseAuthV16
+from ocpp.v16.enums import (
+    ChargingProfileKindType,
+    ChargingProfilePurposeType,
+    RecurrencyKind,
+    ChargingRateUnitType,
+)
+from typing import Optional, List
 
 
 class Quota(QuotaBase, TableBase, table=True):
@@ -45,9 +48,47 @@ class ChargePoint(ChargePointBase, OwnedByUser, table=True):
     ocpp_configuration_v16_id: Index | None = Field(
         default=None, foreign_key="ocppconfigurationv16.id"
     )
-    # charging_profiles: List["ChargingProfile"] = Relationship(
-    #     back_populates="charge_point"
-    # )
+    charging_profiles: List["AssignedChargingProfile"] = Relationship(
+        back_populates="charge_point"
+    )
+
+
+class AssignedChargingProfile(TableBase, table=True):
+    chargingprofileid: int = Field(index=True)
+    evse_id: int | None = Field(None)
+    connector_id: int | None = Field(None)
+    connector_0: bool = Field(True)
+    stack_level: int
+    charging_profile_purpose: ChargingProfilePurposeType
+    charging_profile_kind: ChargingProfileKindType
+    transaction_id: Optional[int] = None
+    recurrency_kind: Optional[RecurrencyKind] = None
+    valid_from: Optional[str] = None
+    valid_to: Optional[str] = None
+    charging_rate_unit: ChargingRateUnitType
+    duration: Optional[int] = None
+    start_schedule: Optional[str] = None
+    min_charging_rate: Optional[float] = None
+
+    charge_point_id: Index | None = Field(default=None, foreign_key="chargepoint.id")
+    charge_point: Optional[ChargePoint] = Relationship(
+        back_populates="charging_profiles"
+    )
+    charging_schedule_period: List["ChargingSchedulePeriod"] = Relationship(
+        back_populates="assigned_charging_profile"
+    )
+
+
+class ChargingSchedulePeriod(TableBase, table=True):
+    start_period: int
+    limit: float
+    number_phases: Optional[int] = None
+    charging_profile_id: Optional[Index] = Field(
+        default=None, foreign_key="assignedchargingprofile.id"
+    )
+    assigned_charging_profile: Optional[AssignedChargingProfile] = Relationship(
+        back_populates="charging_schedule_period"
+    )
 
 
 class Evse(TableBase, table=True):

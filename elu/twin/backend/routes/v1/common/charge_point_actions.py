@@ -134,25 +134,17 @@ def _stop_charging(
 def _set_charging_profile(
     session: Session,
     charge_profile_request: ChargingProfile,
-    current_user: User,
+    charge_point_id
 ):
-    transaction = session.exec(
-        select(Transaction)
-        .where(Transaction.id == charge_profile_request.transaction_id)
-        .where(Transaction.user_id == current_user.id)
-    ).first()
-    if transaction:
-        if transaction.status in [
-            TransactionStatus.accepted,
-            TransactionStatus.running,
-        ]:
-            r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ACTIONS)
-            r.publish(
-                f"actions-{transaction.charge_point_id}",
-                charge_profile_request.model_dump_json(),
-            )
-            return ActionMessageRequest(
-                message="Charging profile sent to requested connector"
-            )
+   
+   
+    r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ACTIONS)
+    r.publish(
+        f"actions-{charge_point_id}",
+        charge_profile_request.model_dump_json(),
+    )
+    return ActionMessageRequest(
+        message="Charging profile sent to requested connector"
+    )
         raise HTTPException(status_code=400, detail="Connector not charging")
     raise HTTPException(status_code=400, detail="Transaction not found")

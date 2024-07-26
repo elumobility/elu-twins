@@ -296,7 +296,7 @@ def create_charge_point_by_string(
         )
         results.append(db_charge_point)
         if add_to_internal_steve:
-            add_charge_points_to_steve([charge_point.name])
+            add_charge_points_to_steve([charge_point.cid])
     quota.current_number_of_charge_points += len(charge_points)
     session.add(quota)
     return results
