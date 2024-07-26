@@ -10,7 +10,6 @@ from elu.twin.backend.db.database import get_session
 from elu.twin.backend.routes.v1.common.charge_point_actions import (
     _post_request_start_charging,
     _stop_charging,
-    _set_charging_profile,
 )
 from elu.twin.charge_point.celery_factory import create_charger, app_celery
 from elu.twin.data.enums import (
@@ -27,7 +26,6 @@ from elu.twin.data.schemas.transaction import (
     RequestStartTransaction,
     RequestStopTransaction,
 )
-from elu.twin.data.schemas.charging_profile import ChargePointProfile
 from elu.twin.data.tables import (
     User,
     ChargePoint,
@@ -130,11 +128,11 @@ def disconnect_charger(
     raise HTTPException(status_code=400, detail="Charge point not found")
 
 
-@router.post("/charging-profile")
-def set_charging_profile(
-    *,
-    session: Session = Depends(get_session),
-    charge_profile_request: ChargePointProfile,
-    current_user: Annotated[User, Depends(get_current_active_user)],
-):
-    return _set_charging_profile(session, charge_profile_request, current_user)
+# @router.post("/charging-profile")
+# def set_charging_profile(
+#     *,
+#     session: Session = Depends(get_session),
+#     charge_profile_request: ChargePointProfile,
+#     current_user: Annotated[User, Depends(get_current_active_user)],
+# ):
+#     return _set_charging_profile(session, charge_profile_request, current_user)

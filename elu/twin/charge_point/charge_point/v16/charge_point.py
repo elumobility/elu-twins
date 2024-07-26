@@ -73,11 +73,11 @@ from elu.twin.charge_point.charge_point.charge_point_consumer import (
 )
 from elu.twin.charge_point.charge_point.models.charge_point import (
     Reservation,
-    AssignedChargingProfile,
 )
 
 from elu.twin.charge_point.env import VID_PREFFIX
 from elu.twin.charge_point.generator import generate_protocol
+from elu.twin.data.tables import AssignedChargingProfile, ChargingSchedulePeriod
 
 
 class ChargePointBase(Cp, ChargePointConsumer):
@@ -172,7 +172,6 @@ class ChargePoint(ChargePointBase):
     ) -> Optional[ChargingSchedule]:
         schedule = Schedule()
         charging_profiles = []
-        print("profiles charging: ", self.cpi.charging_profiles)
         if self.cpi.charging_profiles:
             for charging_profile in self.cpi.charging_profiles:
                 charging_profiles.append(charging_profile.charging_profile)
@@ -192,7 +191,6 @@ class ChargePoint(ChargePointBase):
 
     async def get_on_get_composite_schedule(self, **kwargs):
         request = call.GetCompositeSchedulePayload(**kwargs)
-        print("composite: ", request)
         schedule = self.get_composite_schedule(**asdict(request))
         if schedule is not None:
             return call_result.GetCompositeSchedulePayload(
@@ -214,24 +212,20 @@ class ChargePoint(ChargePointBase):
             charging_profile (AssignedChargingProfile): _description_
         """
         has_been_added = False
-        print("do we get here: ", charging_profile)
         for i, profile in enumerate(self.cpi.charging_profiles):
-            ch_profile = profile.charging_profile
-            ch_new_profile = charging_profile.charging_profile
-            # If a charging profile with the same chargingProfileId,
-            # or the same combination of stackLevel / ChargingProfilePurpose,
-            # exists on the Charge Point, the new charging profile SHALL replace
-            # the existing charging profile,
             if (
-                ch_profile.stack_level == ch_new_profile.stack_level
-                or ch_profile.charging_profile_id == ch_new_profile.charging_profile_id
+                profile.stack_level == charging_profile.stack_level
+                or profile.chargingprofileid == charging_profile.chargingprofileid
             ):
+                # If a charging profile with the same chargingProfileId,
+                # or the same combination of stackLevel / ChargingProfilePurpose,
+                # exists on the Charge Point, the new charging profile SHALL replace
+                # the existing charging profile,
                 self.cpi.charging_profiles[i] = charging_profile
                 has_been_added = True
                 break
         if not has_been_added:
             self.cpi.charging_profiles.append(charging_profile)
-            print("innside: ", self.cpi.charging_profiles)
 
     async def get_on_set_charging_profile(self, **kwargs):
         response = call.SetChargingProfilePayload(**kwargs)
@@ -269,11 +263,27 @@ class ChargePoint(ChargePointBase):
                     charging_profile.valid_from = (
                         charging_profile.charging_schedule.start_schedule
                     )
+            charging_schedule_periods = [
+                ChargingSchedulePeriod(
+                    start_period=period.start_period,
+                    limit=period.limit,
+                    number_phases=period.number_phases,
+                )
+                for period in charging_profile.charging_schedule.charging_schedule_period
+            ]
             assigned_charging_profile = AssignedChargingProfile(
                 connector_0=False,
                 connector_id=connector_id,
                 evse_id=evse_id,
-                charging_profile=charging_profile,
+                chargingprofileid=charging_profile.charging_profile_id,
+                charging_profile_kind=charging_profile.charging_profile_kind,
+                charging_profile_purpose=charging_profile.charging_profile_purpose,
+                charging_rate_unit=charging_profile.charging_schedule.charging_rate_unit,
+                stack_level=charging_profile.stack_level,
+                transaction_id=charging_profile.transaction_id,
+                recurrency_kind=charging_profile.recurrency_kind,
+                valid_from=charging_profile.valid_from,
+                charging_schedule_period=charging_schedule_periods,
             )
         await self.add_charging_profile(charging_profile=assigned_charging_profile)
         return call_result.SetChargingProfilePayload(
@@ -731,12 +741,12 @@ class ChargePoint(ChargePointBase):
         self, evse_id: int, connector_id: int, soc: int, vid: str, start_time: datetime
     ):
         # Todo: check datetimes are both same time-zone
+        print("do we even get here: ", self.cpi)
         if self.cpi.charging_profiles:
-            self.cpi.charging_profiles.sort(
-                key=lambda x: x.charging_profile.stack_level, reverse=True
-            )
+            print("profiles: ", self.cpi.charging_profiles)
+            self.cpi.charging_profiles.sort(key=lambda x: x.stack_level, reverse=True)
             # Todo: filter for 0 connector or specific connector
-            profile = self.cpi.charging_profiles[0].charging_profile
+            profile = self.cpi.charging_profiles[0]
             start_time = profile.valid_from
             current_time = get_now(as_string=False)
             time_difference = current_time - start_time
@@ -745,17 +755,12 @@ class ChargePoint(ChargePointBase):
             # Todo: need to get transaction id
             schedules = [
                 p
-                for p in profile.charging_schedule.charging_schedule_period
+                for p in profile.charging_schedule_period
                 if p.start_period <= time_difference_seconds
             ]
             schedules.sort(key=lambda x: x.start_period, reverse=True)
-            print("schedules: ", schedules)
             schedule = schedules[0]
-            print("schedule: ", schedule)
-            if (
-                profile.charging_schedule.charging_rate_unit
-                == ChargingRateUnitType.watts
-            ):
+            if profile.charging_rate_unit == ChargingRateUnitType.watts:
                 power_kw = copy.deepcopy(schedule.limit) / 1000
             return int(power_kw)
         else:
@@ -780,7 +785,8 @@ class ChargePoint(ChargePointBase):
         response_start,
         vehicle,
         transaction_id,
-        current_scale,
+        current_scale: call_result.StartTransactionPayload,
+        transaction_start_time: datetime,
     ):
         """_summary_
 

@@ -140,14 +140,14 @@ class Schedule(SQLModel):
         end_schedule = now + timedelta(seconds=duration)
         all_intervals = []
         min_charging_rate = 0
-        print("profiles1: ", profiles)
 
         for profile in profiles:
             stack_level = profile.stack_level
             if profile.charging_schedule.start_schedule:
-                start = datetime.strptime(
-                    profile.charging_schedule.start_schedule, "%Y-%m-%dT%H:%M:%S.%fZ"
-                ).replace(tzinfo=timezone.utc)
+                # start = datetime.strptime(
+                #     profile.charging_schedule.start_schedule, "%Y-%m-%dT%H:%M:%S.%fZ"
+                # ).replace(tzinfo=timezone.utc)
+                start = profile.charging_schedule.start_schedule
             else:
                 start = now
 
