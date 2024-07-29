@@ -1,3 +1,4 @@
+from pydantic import parse_obj_as
 import redis
 from elu.twin.data.enums import (
     VehicleStatus,
@@ -6,21 +7,27 @@ from elu.twin.data.enums import (
     TransactionStatus,
 )
 from elu.twin.data.schemas.actions import ActionMessageRequest
+from elu.twin.data.schemas.charging_profile import (
+    AssignedChargingProfile,
+    ChargingProfile,
+    ChargingSchedule,
+    ChargingSchedulePeriod,
+    SetChargingProfilePayload,
+)
 from elu.twin.data.schemas.transaction import (
-    RedisRequestSetChargingProfile,
     RequestStartTransaction,
     RedisRequestStartTransaction,
     RequestStopTransaction,
     RedisRequestStopTransaction,
 )
 from ocpp.v16 import call
+from dataclasses import asdict
 
 from elu.twin.data.tables import User, Connector, Vehicle, Transaction
 from fastapi import HTTPException, status
 from sqlmodel import Session, select
 
 from elu.twin.backend.env import REDIS_HOSTNAME, REDIS_PORT, REDIS_DB_ACTIONS
-from ocpp.v16.datatypes import ChargingProfile
 
 
 def _post_request_start_charging(
@@ -131,20 +138,62 @@ def _stop_charging(
     raise HTTPException(status_code=400, detail="Transaction not found")
 
 
+def convert_assigned_to_charging_profile(
+    assigned_profile: AssignedChargingProfile,
+) -> ChargingProfile:
+    # Convert ChargingSchedulePeriod SQLModel instances to dataclass instances
+    charging_schedule_periods = [
+        ChargingSchedulePeriod(
+            id=period.id,
+            start_period=period.start_period,
+            limit=period.limit,
+            number_phases=period.number_phases,
+        )
+        for period in assigned_profile.charging_schedule_period
+    ]
+
+    # Create the ChargingSchedule dataclass instance
+    charging_schedule = ChargingSchedule(
+        charging_rate_unit=assigned_profile.charging_rate_unit,
+        charging_schedule_period=charging_schedule_periods,
+        duration=assigned_profile.duration,
+        start_schedule=assigned_profile.start_schedule,
+        min_charging_rate=assigned_profile.min_charging_rate,
+    )
+
+    # Create the ChargingProfile dataclass instance
+    charging_profile = ChargingProfile(
+        charging_profile_id=assigned_profile.chargingprofileid,
+        stack_level=assigned_profile.stack_level,
+        charging_profile_purpose=assigned_profile.charging_profile_purpose,
+        charging_profile_kind=assigned_profile.charging_profile_kind,
+        charging_schedule=charging_schedule,
+        transaction_id=assigned_profile.transaction_id,
+        recurrency_kind=assigned_profile.recurrency_kind,
+        valid_from=assigned_profile.valid_from,
+        valid_to=assigned_profile.valid_to,
+    )
+
+    return charging_profile
+
+
 def _set_charging_profile(
-    session: Session,
-    charge_profile_request: ChargingProfile,
-    charge_point_id
+    session: Session, charge_profile_request: AssignedChargingProfile, charge_point_id
 ):
-   
-   
+    charging_profile = convert_assigned_to_charging_profile(
+        assigned_profile=charge_profile_request
+    )
+
+    profile1 = SetChargingProfilePayload(
+        connector_id=1, cs_charging_profiles=charging_profile
+    )
+    # return profile1
+
     r = redis.Redis(host=REDIS_HOSTNAME, port=REDIS_PORT, db=REDIS_DB_ACTIONS)
     r.publish(
         f"actions-{charge_point_id}",
-        charge_profile_request.model_dump_json(),
+        profile1.model_dump_json(),
     )
-    return ActionMessageRequest(
-        message="Charging profile sent to requested connector"
-    )
-        raise HTTPException(status_code=400, detail="Connector not charging")
-    raise HTTPException(status_code=400, detail="Transaction not found")
+    return ActionMessageRequest(message="Charging profile sent to requested charger")
+    #     raise HTTPException(status_code=400, detail="Connector not charging")
+    # raise HTTPException(status_code=400, detail="Transaction not found")

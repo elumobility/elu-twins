@@ -6,18 +6,19 @@ from typing import Coroutine
 import redis
 from loguru import logger
 from sqlmodel import SQLModel
-from ocpp.v16.call import SetChargingProfilePayload
 from elu.twin.charge_point import requests
 from elu.twin.charge_point.charge_point.models.charge_point import actions
 from elu.twin.charge_point.env import REDIS_HOSTNAME, REDIS_DB_ACTIONS, REDIS_PORT
 from elu.twin.data.enums import PowerType, is_dc, ConnectorStatus, EvseStatus
 from elu.twin.data.schemas.charge_point import OutputChargePoint as Cpi
+from elu.twin.data.schemas.charging_profile import SetChargingProfilePayload
 from elu.twin.data.schemas.common import Index
 from elu.twin.data.schemas.transaction import (
-    RedisRequestSetChargingProfile,
     RedisRequestStartTransaction,
     RedisRequestStopTransaction,
 )
+
+from ocpp.v16.call import SetChargingProfilePayload as OcppSetChargingProfilePayload
 
 
 class ChargePointConsumer:
@@ -131,15 +132,16 @@ class ChargePointConsumer:
 
     async def process_actions(self):
         """
+        Each action needs a name attribute to work
         Process actions
+
         """
         while True:
             obj = await self.actions_queue.get()
-            logger.warning(f"debug: {obj}")
             if isinstance(obj, RedisRequestStartTransaction):
                 start_transaction: RedisRequestStartTransaction = obj
+                logger.debug("start: ", start_transaction)
                 self.actions_queue.task_done()
-                logger.warning(f"dick: {start_transaction.dict()}")
                 task = asyncio.create_task(
                     self.start_transaction(**start_transaction.dict())
                 )
@@ -155,9 +157,11 @@ class ChargePointConsumer:
                 task.add_done_callback(self.actions_set.discard)
             elif isinstance(obj, SetChargingProfilePayload):
                 charging_profile: SetChargingProfilePayload = obj
+                cp_profile = charging_profile.dict()
+                del cp_profile["name"]
                 self.actions_queue.task_done()
                 task = asyncio.create_task(
-                    self.get_on_set_charging_profile(charging_profile)
+                    self.get_on_set_charging_profile(**cp_profile)
                 )
                 self.actions_set.add(task)
                 task.add_done_callback(self.actions_set.discard)
@@ -186,10 +190,14 @@ class ChargePointConsumer:
                     data = message.get("data")
                     obj = json.loads(data)
                     action_name: SQLModel = obj.get("name")
+                    # logger.debug("action: ", action_name)
+                    # logger.debug("obj ", obj)
                     if action_name in actions:
                         model: SQLModel = actions.get(action_name)
+                        # logger.debug("model: ", model)
                         if model:
                             action = model.model_validate(obj)
+                            # logger.debug("model action: ", action)
                             await self.add_action_to_queue(action)
                         else:
                             logger.warning(
@@ -197,8 +205,8 @@ class ChargePointConsumer:
                             )
                     else:
                         logger.warning(f"action not found: {data}")
-                except:
-                    logger.error(f"error parsing: {message}")
+                except Exception as error:
+                    logger.error(f"error parsing: {message} with error: {error}")
                     await asyncio.sleep(3)
             #                    p = r.pubsub()
             #                    p.subscribe(channel)
