@@ -5,6 +5,7 @@ from datetime import datetime
 from elu.twin.data.enums import (
     TransactionName,
 )
+from elu.twin.data.schemas.charging_profile import SetChargingProfilePayload
 from elu.twin.data.schemas.transaction import (
     RedisRequestStartTransaction,
     RedisRequestStopTransaction,
@@ -31,4 +32,5 @@ class Reservation(SQLModel):
 actions = {
     TransactionName.start_transaction: RedisRequestStartTransaction,
     TransactionName.stop_transaction: RedisRequestStopTransaction,
+    "charging_profile": SetChargingProfilePayload,
 }

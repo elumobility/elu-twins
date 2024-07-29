@@ -87,7 +87,6 @@ class ChargePoint(ChargePointBase):
 
     async def get_send_status_notification(self, **kwargs):
         # request = call.BootNotificationPayload(**kwargs)
-        logger.warning("hi we get here:")
         # await update_evse_and_connectors(self.cpi)
         evse = self.cpi.evses[0]
         connector = evse.connectors[0]
@@ -162,7 +161,6 @@ class ChargePoint(ChargePointBase):
         transaction_id: Index,
         delay_between_actions: int = 1,
     ):
-        logger.warning("whatss")
         vehicle, evse_id, connector_id = await self._get_transaction_info(
             transaction_id=transaction_id
         )

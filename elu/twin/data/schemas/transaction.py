@@ -4,6 +4,8 @@ from sqlmodel import Field, SQLModel
 
 from elu.twin.data.enums import TransactionStatus, TransactionName
 from elu.twin.data.helpers import get_now
+
+# from elu.twin.data.schemas.charging_profile import AssignedChargingProfile
 from elu.twin.data.schemas.common import Index, TableBase, OwnedByUser, UpdateSchema
 
 
@@ -57,5 +59,5 @@ class RedisRequestStopTransaction(RedisRequestTransaction):
     name: TransactionName = TransactionName.stop_transaction
 
 
-class RedisRequestSetChargingProfile(SQLModel):
-    pass
+# class RedisRequestSetChargingProfile(AssignedChargingProfile):
+#     pass

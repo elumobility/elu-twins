@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Coroutine, Tuple, Optional
 import copy
 
+from loguru import logger
+
 from elu.twin.data.enums import (
     AuthorizationStatus,
     ConnectorQueuedActions,
@@ -228,7 +230,9 @@ class ChargePoint(ChargePointBase):
             self.cpi.charging_profiles.append(charging_profile)
 
     async def get_on_set_charging_profile(self, **kwargs):
+        logger.debug("kwargs: %s", kwargs)
         response = call.SetChargingProfilePayload(**kwargs)
+        logger.debug("SetChargingProfilePayload: %s", response)
         charging_profile = parse_obj_as(ChargingProfile, response.cs_charging_profiles)
         if response.connector_id == 0:
             assigned_charging_profile = AssignedChargingProfile(
@@ -741,7 +745,6 @@ class ChargePoint(ChargePointBase):
         self, evse_id: int, connector_id: int, soc: int, vid: str, start_time: datetime
     ):
         # Todo: check datetimes are both same time-zone
-        print("do we even get here: ", self.cpi)
         if self.cpi.charging_profiles:
             print("profiles: ", self.cpi.charging_profiles)
             self.cpi.charging_profiles.sort(key=lambda x: x.stack_level, reverse=True)

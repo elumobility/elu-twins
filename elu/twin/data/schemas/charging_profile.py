@@ -1,4 +1,3 @@
-from ocpp.v16.datatypes import ChargingProfile
 from sqlmodel import SQLModel
 from elu.twin.data.schemas.common import Index, Field
 from sqlmodel import Field, SQLModel
@@ -38,3 +37,34 @@ class ChargingSchedulePeriod(SQLModel):
     start_period: int
     limit: float
     number_phases: Optional[int] = None
+
+
+# class SetChargingProfilePayload(SQLModel):
+#     connector_id: int
+#     cs_charging_profiles: Dict
+
+
+class ChargingSchedule(SQLModel):
+    charging_rate_unit: str
+    charging_schedule_period: List[ChargingSchedulePeriod]
+    duration: Optional[int] = None
+    start_schedule: Optional[str] = None
+    min_charging_rate: Optional[float] = None
+
+
+class ChargingProfile(SQLModel):
+    charging_profile_id: int
+    stack_level: int
+    charging_profile_purpose: str
+    charging_profile_kind: str
+    charging_schedule: ChargingSchedule
+    transaction_id: Optional[int] = None
+    recurrency_kind: Optional[str] = None
+    valid_from: Optional[str] = None
+    valid_to: Optional[str] = None
+
+
+class SetChargingProfilePayload(SQLModel):
+    connector_id: int
+    cs_charging_profiles: ChargingProfile
+    name: str = "charging_profile"

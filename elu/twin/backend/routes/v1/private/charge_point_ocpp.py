@@ -185,6 +185,7 @@ def update_charger_profile(
         return {"message": "Charge point not found"}
 
     charge_profile = parse_charging_profile(charging_profile_request)
+
     charge_profile.charge_point_id = db_charge_point.id
 
     # Add charging profile and its periods to the session
@@ -203,8 +204,13 @@ def update_charger_profile(
     session.add(db_charge_point)
     session.commit()
     session.refresh(db_charge_point)
-
-    # _set_charging_profile(session=session,)
+    # return db_charge_point.charging_profiles
+    t = _set_charging_profile(
+        session=session,
+        charge_profile_request=charge_profile,
+        charge_point_id=db_charge_point.id,
+    )
+    return t
 
     return db_charge_point
 
