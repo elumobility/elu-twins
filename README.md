@@ -26,15 +26,15 @@ These are the OCPP operations supported for now.
 | Charge point      | Stop transaction         |      ✅       |                                      |
 | Charge point      | Status notification      |      ✅       |                                      |
 | Charge point      | Heartbeat                |      ✅       |                                      |
-| Charge point      | Authorize                |      🛠️       | Under development                    |
+| Charge point      | Authorize                |      🛠️       | Partially                            |
 | Charge point      | Heartbeat                |      ✅       |                                      |
 | Central system    | Remote start transaction |      ✅       |                                      |
 | Central system    | Remote stop transaction  |      ✅       |                                      |
 | Central system    | Reserve now              |      🛠️       | Under development                    |
-| Central system    | Set Charging Profile     |      🛠       | Under development                    |
+| Central system    | Set Charging Profile     |      🛠       | TxpProfile supported                 |
 | Central system    | Get Composite Schedule   |      🛠️       | Under development                    |
-| Central system    | Get Configuration        |      🛠️       | Under development                    |
-| Central system    | Change Configuration     |      🛠️       | Under development                    |
+| Central system    | Get Configuration        |      ✅       | Under development                    |
+| Central system    | Change Configuration     |      ✅       | Under development                    |
 
 
 
