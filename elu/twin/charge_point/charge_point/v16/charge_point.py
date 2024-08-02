@@ -230,9 +230,7 @@ class ChargePoint(ChargePointBase):
             self.cpi.charging_profiles.append(charging_profile)
 
     async def get_on_set_charging_profile(self, **kwargs):
-        logger.debug("kwargs: %s", kwargs)
         response = call.SetChargingProfilePayload(**kwargs)
-        logger.debug("SetChargingProfilePayload: %s", response)
         charging_profile = parse_obj_as(ChargingProfile, response.cs_charging_profiles)
         if response.connector_id == 0:
             assigned_charging_profile = AssignedChargingProfile(
@@ -556,6 +554,12 @@ class ChargePoint(ChargePointBase):
                     self.cpi.evses[eix].connectors[
                         cix
                     ].queued_action = ConnectorQueuedActions.stop_charging
+                    filtered_profiles = [
+                        item
+                        for item in self.cpi.charging_profiles
+                        if item.connector_id != connector.connectorid
+                    ]
+                    self.cpi.charging_profiles = filtered_profiles
 
     async def get_on_unlock_connector(self, **kwargs):
         request = call.UnlockConnectorPayload(**kwargs)
