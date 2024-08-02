@@ -37,18 +37,6 @@ These are the OCPP operations supported for now.
 | Central system    | Change Configuration     |      🛠️       | Under development                    |
 
 
-### OCPP 2.0.1
-
-| **Initiatied by** | **Operation**                | **Status** |       **Comments**      |
-|:-----------------:|------------------------------|:----------:|:-----------------------:|
-| Charge point      | Boot notification request    |      ✅    |                         |
-| Charge point      | Status notification request  |      ✅    |                         |
-| Charge point      | Heartbeat request            |      ✅    |                         |
-| Charge point      | Transaction event request    |      ✅    | start/stop/meter values |
-| Central system    | Status notification response |      ✅    |                         |
-| Central system    | Boot notification response   |      ✅    |                         |
-| Central system    | Heartbeat response           |      ✅    |                         |
-| Central system    | Transaction event response   |      ✅    |                         |
 
 - Currently under development, the OCPP 2.0.1 version is not yet fully implemented, but we're working on it.
 
