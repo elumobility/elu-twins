@@ -163,7 +163,7 @@ class OcppConfigurationBase(SQLModel):
         """
         list_keys = key if key else ocpp_key
         configuration_key = [self.get_key_value(k) for k in list_keys if k in ocpp_key]
-        unknown_key = [k for k in key if k not in ocpp_key]
+        unknown_key = None if key is None else [k for k in key if k not in ocpp_key]
         return configuration_key, unknown_key
 
 
